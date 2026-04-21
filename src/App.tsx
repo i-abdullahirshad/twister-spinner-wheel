@@ -1133,7 +1133,6 @@ function Home({ routeLang }: { routeLang: string }) {
 
       {/* HEADER */}
       <Navbar />
-      </header>
 
       {/* MAIN — two-column layout */}
       <main className="flex-1 w-full max-w-[960px] mx-auto flex flex-col md:flex-row gap-5 px-4 py-6">
