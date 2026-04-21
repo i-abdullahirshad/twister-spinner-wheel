@@ -1131,29 +1131,7 @@ function Home({ routeLang }: { routeLang: string }) {
       </div>
 
       {/* HEADER */}
-      <header className="w-full px-4 py-3 flex items-center justify-between border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-20">
-        <h1 className="text-lg font-bold tracking-tight">{t("app_title")}</h1>
-        <div className="flex items-center gap-1.5">
-          <select
-            value={lang}
-            onChange={e => {
-              const newLang = e.target.value;
-              localStorage.setItem("twisterLang", newLang);
-              setLocation(newLang === "en" ? "/" : `/${newLang}`);
-            }}
-            className="text-xs bg-card border border-border rounded-lg px-2 py-1.5 text-foreground max-w-[108px] focus:outline-none focus:ring-2 focus:ring-primary/50"
-          >
-            {Object.entries(LANGUAGES).map(([code, { label }]) => (
-              <option key={code} value={code}>{label}</option>
-            ))}
-          </select>
-          <button
-            onClick={() => setTheme(th => th === "light" ? "dark" : "light")}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-accent transition-colors"
-          >
-            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
-        </div>
+      <Navbar />
       </header>
 
       {/* MAIN — two-column layout */}
