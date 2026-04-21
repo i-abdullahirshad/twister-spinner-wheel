@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { flushSync } from "react-dom";
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -815,7 +815,8 @@ function WinnerOverlay({ winner, round, onPlayAgain }: { winner: Player; round: 
 // ════════════════════════════════════════════════════════════════════════════
 // HOME
 // ════════════════════════════════════════════════════════════════════════════
-function Home() {
+function Home({ routeLang }: { routeLang: string }) {
+  const [, setLocation] = useLocation(); // <-- Added useLocation
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [isSpinning, setIsSpinning]   = useState(false);
@@ -828,7 +829,9 @@ function Home() {
   const [voiceOn, setVoiceOn]         = useState(true);
   const [speedMode, setSpeedMode]     = useState<SpeedMode>("normal");
   const [theme, setTheme]             = useState(() => localStorage.getItem("theme") || "light");
-  const [lang, setLang]               = useState(() => localStorage.getItem("twisterLang") || "en");
+  
+  // 👇 WE CHANGED THIS LINE 👇
+  const lang = routeLang; 
 
   const [shareCardDataUrl, setShareCardDataUrl] = useState<string | null>(null);
   const [showShare, setShowShare]               = useState(false);
@@ -844,6 +847,14 @@ function Home() {
   const rotationRef        = useRef(0);
   const animationRef       = useRef<number>(0);
   const lastTickAngleRef   = useRef(0);
+
+  // 👇 AND ADDED THIS EFFECT 👇
+  useEffect(() => {
+    const saved = localStorage.getItem("twisterLang");
+    if (routeLang === "en" && saved && saved !== "en" && LANGUAGES[saved]) {
+      setLocation(`/${saved}`, { replace: true });
+    }
+  }, [routeLang, setLocation]);
 
   const t = useCallback((key: string): string => {
     const d = LANGUAGES[lang]?.translations;
@@ -1122,7 +1133,11 @@ function Home() {
         <div className="flex items-center gap-1.5">
           <select
             value={lang}
-            onChange={e => setLang(e.target.value)}
+            onChange={e => {
+              const newLang = e.target.value;
+              localStorage.setItem("twisterLang", newLang);
+              setLocation(newLang === "en" ? "/" : `/${newLang}`);
+            }}
             className="text-xs bg-card border border-border rounded-lg px-2 py-1.5 text-foreground max-w-[108px] focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
             {Object.entries(LANGUAGES).map(([code, { label }]) => (
@@ -1297,7 +1312,20 @@ function Home() {
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      {/* English is the default root */}
+      <Route path="/">{() => <Home routeLang="en" />}</Route>
+      
+      {/* Catch all language codes like /tr, /es, /ar */}
+      <Route path="/:lang">
+        {(params) => {
+          const langCode = params.lang?.toLowerCase();
+          if (langCode && LANGUAGES[langCode]) {
+            return <Home routeLang={langCode} />;
+          }
+          return <NotFound />;
+        }}
+      </Route>
+      
       <Route component={NotFound} />
     </Switch>
   );
