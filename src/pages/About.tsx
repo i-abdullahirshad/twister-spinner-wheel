@@ -1,23 +1,12 @@
 import React from 'react';
 import { Link } from 'wouter';
 import { Volume2, Zap, Users, ShieldCheck, ChevronLeft } from 'lucide-react';
+import Navbar from '../components/Navbar'; // <-- Add this!
 
 const About = () => {
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 transition-colors duration-300">
-      {/* Navigation */}
-      <nav className="p-4 md:p-6 border-b border-border flex justify-between items-center bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <Link href="/">
-          <span className="text-xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent cursor-pointer">
-            Twister Spinner
-          </span>
-        </Link>
-        <Link href="/">
-          <button className="text-sm bg-accent hover:bg-accent/80 text-foreground px-4 py-2 rounded-lg transition border border-border font-medium flex items-center gap-1.5 shadow-sm">
-            <ChevronLeft className="w-4 h-4" /> Back
-          </button>
-        </Link>
-      </nav>
+      <Navbar />
 
       <div className="max-w-4xl mx-auto py-12 md:py-16 px-6">
         <h1 className="text-4xl md:text-5xl font-black text-foreground mb-8 tracking-tight leading-tight">
