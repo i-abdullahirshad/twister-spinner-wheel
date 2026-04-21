@@ -43,16 +43,18 @@ const Navbar = () => {
       </Link>
       
       <div className="flex items-center gap-2 md:gap-4">
-        {/* Language Dropdown */}
-        <select
-          value={lang}
-          onChange={handleLanguageChange}
-          className="text-xs bg-card border border-border rounded-lg px-2 py-1.5 text-foreground max-w-[108px] focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
-        >
-          {Object.entries(LANGUAGES).map(([code, label]) => (
-            <option key={code} value={code}>{label}</option>
-          ))}
-        </select>
+        {/* Language Dropdown - Only show on Homepage */}
+        {!isInnerPage && (
+          <select
+            value={lang}
+            onChange={handleLanguageChange}
+            className="text-xs bg-card border border-border rounded-lg px-2 py-1.5 text-foreground max-w-[108px] focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
+          >
+            {Object.entries(LANGUAGES).map(([code, label]) => (
+              <option key={code} value={code}>{label}</option>
+            ))}
+          </select>
+        )}
 
         {/* Light/Dark Toggle */}
         <button
