@@ -1,14 +1,18 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { flushSync } from "react-dom";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import { Moon, Sun, Volume2, VolumeX, Mic, MicOff, Maximize, Zap, Clock, X, Loader2, Copy, Shuffle, RotateCcw } from "lucide-react";
+import {
+  Moon, Sun, Volume2, VolumeX, Mic, MicOff, Maximize, Zap,
+  X, Loader2, Copy, Shuffle, RotateCcw, ChevronRight,
+  Plus, Users, Download, ClipboardCopy, ImageDown,
+} from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import NotFound from "@/pages/not-found";
 
-// --- Language imports (all loaded statically for instant switching) ---
+// ── Language imports ─────────────────────────────────────────────────────────
 import enLang from "./lang/en.json";
 import arLang from "./lang/ar.json";
 import urLang from "./lang/ur.json";
@@ -32,34 +36,32 @@ import koLang from "./lang/ko.json";
 import zhCnLang from "./lang/zh-cn.json";
 import zhTwLang from "./lang/zh-tw.json";
 
-// --- Language registry: add new languages here ---
 const LANGUAGES: Record<string, { label: string; translations: Record<string, string>; rtl?: boolean }> = {
-  en:    { label: "English",    translations: enLang as Record<string, string> },
-  ar:    { label: "العربية",    translations: arLang as Record<string, string>, rtl: true },
-  ur:    { label: "اردو",       translations: urLang as Record<string, string>, rtl: true },
-  es:    { label: "Español",    translations: esLang as Record<string, string> },
-  fr:    { label: "Français",   translations: frLang as Record<string, string> },
-  de:    { label: "Deutsch",    translations: deLang as Record<string, string> },
-  pt:    { label: "Português",  translations: ptLang as Record<string, string> },
-  ru:    { label: "Русский",    translations: ruLang as Record<string, string> },
-  hi:    { label: "हिन्दी",      translations: hiLang as Record<string, string> },
-  bn:    { label: "বাংলা",      translations: bnLang as Record<string, string> },
-  tr:    { label: "Türkçe",     translations: trLang as Record<string, string> },
-  id:    { label: "Indonesia",  translations: idLang as Record<string, string> },
-  ms:    { label: "Melayu",     translations: msLang as Record<string, string> },
-  it:    { label: "Italiano",   translations: itLang as Record<string, string> },
-  nl:    { label: "Nederlands", translations: nlLang as Record<string, string> },
-  pl:    { label: "Polski",     translations: plLang as Record<string, string> },
-  sv:    { label: "Svenska",    translations: svLang as Record<string, string> },
-  vi:    { label: "Tiếng Việt", translations: viLang as Record<string, string> },
-  ja:    { label: "日本語",      translations: jaLang as Record<string, string> },
-  ko:    { label: "한국어",      translations: koLang as Record<string, string> },
-  "zh-cn": { label: "简体中文",  translations: zhCnLang as Record<string, string> },
-  "zh-tw": { label: "繁體中文",  translations: zhTwLang as Record<string, string> },
+  en:      { label: "English",    translations: enLang as Record<string, string> },
+  ar:      { label: "العربية",    translations: arLang as Record<string, string>, rtl: true },
+  ur:      { label: "اردو",       translations: urLang as Record<string, string>, rtl: true },
+  es:      { label: "Español",    translations: esLang as Record<string, string> },
+  fr:      { label: "Français",   translations: frLang as Record<string, string> },
+  de:      { label: "Deutsch",    translations: deLang as Record<string, string> },
+  pt:      { label: "Português",  translations: ptLang as Record<string, string> },
+  ru:      { label: "Русский",    translations: ruLang as Record<string, string> },
+  hi:      { label: "हिन्दी",      translations: hiLang as Record<string, string> },
+  bn:      { label: "বাংলা",      translations: bnLang as Record<string, string> },
+  tr:      { label: "Türkçe",     translations: trLang as Record<string, string> },
+  id:      { label: "Indonesia",  translations: idLang as Record<string, string> },
+  ms:      { label: "Melayu",     translations: msLang as Record<string, string> },
+  it:      { label: "Italiano",   translations: itLang as Record<string, string> },
+  nl:      { label: "Nederlands", translations: nlLang as Record<string, string> },
+  pl:      { label: "Polski",     translations: plLang as Record<string, string> },
+  sv:      { label: "Svenska",    translations: svLang as Record<string, string> },
+  vi:      { label: "Tiếng Việt", translations: viLang as Record<string, string> },
+  ja:      { label: "日本語",      translations: jaLang as Record<string, string> },
+  ko:      { label: "한국어",      translations: koLang as Record<string, string> },
+  "zh-cn": { label: "简体中文",    translations: zhCnLang as Record<string, string> },
+  "zh-tw": { label: "繁體中文",    translations: zhTwLang as Record<string, string> },
 };
 
-// --- Base segment definitions (with translation keys) ---
-// Color mapping: partKey + colorKey determine what's shown on wheel
+// ── Segment data ─────────────────────────────────────────────────────────────
 const BASE_SEGMENTS = [
   { id: 1,  partKey: "left_hand",  colorKey: "red",    hex: "#E8192C", gradDark: "#C62828", gradLight: "#EF5350" },
   { id: 2,  partKey: "right_hand", colorKey: "red",    hex: "#E8192C", gradDark: "#C62828", gradLight: "#EF5350" },
@@ -69,226 +71,870 @@ const BASE_SEGMENTS = [
   { id: 6,  partKey: "right_hand", colorKey: "blue",   hex: "#1565C0", gradDark: "#1565C0", gradLight: "#42A5F5" },
   { id: 7,  partKey: "left_foot",  colorKey: "blue",   hex: "#1565C0", gradDark: "#1565C0", gradLight: "#42A5F5" },
   { id: 8,  partKey: "right_foot", colorKey: "blue",   hex: "#1565C0", gradDark: "#1565C0", gradLight: "#42A5F5" },
-  { id: 9,  partKey: "left_hand",  colorKey: "yellow", hex: "#FFD700", gradDark: "#F9A825", gradLight: "#FFE57F" },
-  { id: 10, partKey: "right_hand", colorKey: "yellow", hex: "#FFD700", gradDark: "#F9A825", gradLight: "#FFE57F" },
-  { id: 11, partKey: "left_foot",  colorKey: "yellow", hex: "#FFD700", gradDark: "#F9A825", gradLight: "#FFE57F" },
-  { id: 12, partKey: "right_foot", colorKey: "yellow", hex: "#FFD700", gradDark: "#F9A825", gradLight: "#FFE57F" },
+  { id: 9,  partKey: "left_hand",  colorKey: "yellow", hex: "#F9A825", gradDark: "#F9A825", gradLight: "#FFE57F" },
+  { id: 10, partKey: "right_hand", colorKey: "yellow", hex: "#F9A825", gradDark: "#F9A825", gradLight: "#FFE57F" },
+  { id: 11, partKey: "left_foot",  colorKey: "yellow", hex: "#F9A825", gradDark: "#F9A825", gradLight: "#FFE57F" },
+  { id: 12, partKey: "right_foot", colorKey: "yellow", hex: "#F9A825", gradDark: "#F9A825", gradLight: "#FFE57F" },
   { id: 13, partKey: "left_hand",  colorKey: "green",  hex: "#2E7D32", gradDark: "#2E7D32", gradLight: "#66BB6A" },
   { id: 14, partKey: "right_hand", colorKey: "green",  hex: "#2E7D32", gradDark: "#2E7D32", gradLight: "#66BB6A" },
   { id: 15, partKey: "left_foot",  colorKey: "green",  hex: "#2E7D32", gradDark: "#2E7D32", gradLight: "#66BB6A" },
   { id: 16, partKey: "right_foot", colorKey: "green",  hex: "#2E7D32", gradDark: "#2E7D32", gradLight: "#66BB6A" },
 ];
-
 type Segment = typeof BASE_SEGMENTS[0];
 
-// History items store keys so they work across language changes
-type HistoryItem = {
-  id: number;
-  partKey: string;
-  colorKey: string;
-  colorHex: string;
-  timestamp: number;
+// ── Wheel text labels (two words per segment, rendered on canvas) ─────────────
+const SEGMENT_LABELS: Record<string, [string, string]> = {
+  left_hand:  ["Left",  "Hand"],
+  right_hand: ["Right", "Hand"],
+  left_foot:  ["Left",  "Foot"],
+  right_foot: ["Right", "Foot"],
 };
 
-// --- Fisher-Yates shuffle (in-place on a copy) ---
-function fisherYatesShuffle<T>(arr: T[]): T[] {
-  const result = [...arr];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
-}
+// Avatar palette
+const AVATAR_PALETTE = [
+  { bg: "#E8192C", dark: false },
+  { bg: "#1565C0", dark: false },
+  { bg: "#F9A825", dark: true  },
+  { bg: "#2E7D32", dark: false },
+  { bg: "#c62828", dark: false },
+  { bg: "#0d47a1", dark: false },
+];
 
-// --- Load saved segment order from localStorage, or shuffle fresh ---
+// ── Share card constants ──────────────────────────────────────────────────────
+const LIMB_EMOJI: Record<string, string> = {
+  left_hand:  "🤚",
+  right_hand: "✋",
+  left_foot:  "🦶",
+  right_foot: "🦶",
+};
+const SITE_DOMAIN = "twister-spinner.com";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+type Player = {
+  id: number;
+  name: string;
+  avatarBg: string;
+  avatarDark: boolean;
+  lastMove: { partKey: string; colorKey: string; hex: string } | null;
+  survivedRounds: number;
+};
+type GamePhase = "setup" | "playing" | "winner";
+type HistoryItem = { id: number; partKey: string; colorKey: string; colorHex: string };
+type SpeedMode = "slow" | "normal" | "fast";
+
+const SPEED_CONFIG: Record<SpeedMode, { duration: number; spins: number }> = {
+  slow:   { duration: 6000, spins: 12 },
+  normal: { duration: 4000, spins: 8  },
+  fast:   { duration: 2000, spins: 3  },
+};
+const SPEED_CYCLE: SpeedMode[] = ["slow", "normal", "fast"];
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function fisherYatesShuffle<T>(arr: T[]): T[] {
+  const r = [...arr];
+  for (let i = r.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [r[i], r[j]] = [r[j], r[i]];
+  }
+  return r;
+}
 function loadSegmentOrder(): Segment[] {
   try {
     const saved = localStorage.getItem("twisterSegmentOrder");
     if (saved) {
       const ids: number[] = JSON.parse(saved);
       if (ids.length === 16) {
-        const ordered = ids
-          .map(id => BASE_SEGMENTS.find(s => s.id === id))
-          .filter((s): s is Segment => Boolean(s));
-        if (ordered.length === 16) return ordered;
+        const ord = ids.map(id => BASE_SEGMENTS.find(s => s.id === id)).filter((s): s is Segment => Boolean(s));
+        if (ord.length === 16) return ord;
       }
     }
   } catch (_) {}
-  // Default: shuffle on first load
   return fisherYatesShuffle(BASE_SEGMENTS);
 }
-
-// --- Save segment order IDs to localStorage ---
-function saveSegmentOrder(segments: Segment[]) {
-  localStorage.setItem("twisterSegmentOrder", JSON.stringify(segments.map(s => s.id)));
+function saveSegmentOrder(s: Segment[]) {
+  localStorage.setItem("twisterSegmentOrder", JSON.stringify(s.map(x => x.id)));
+}
+function getInitials(name: string) {
+  return name.trim().charAt(0).toUpperCase() || "?";
+}
+function isMobileDevice() {
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || navigator.maxTouchPoints > 1;
 }
 
-// --- Web Audio synthesizer (no external files) ---
+// ── Share card generator (pure Canvas API, 1080×1080) ─────────────────────────
+function generateShareCard(
+  result: Segment,
+  partLabel: string,
+  colorLabel: string,
+  playerName?: string,
+  round?: number,
+): string {
+  const S = 1080;
+  const cv = document.createElement("canvas");
+  cv.width = S; cv.height = S;
+  const ctx = cv.getContext("2d")!;
+
+  const grad = ctx.createLinearGradient(0, 0, S, S);
+  grad.addColorStop(0, result.gradLight);
+  grad.addColorStop(1, result.gradDark);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, S, S);
+
+  const vig = ctx.createRadialGradient(S / 2, S / 2, S * 0.18, S / 2, S / 2, S * 0.78);
+  vig.addColorStop(0, "rgba(0,0,0,0)");
+  vig.addColorStop(1, "rgba(0,0,0,0.3)");
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, S, S);
+
+  const isYellow = result.colorKey === "yellow";
+  const textColor   = isYellow ? "#1a1000" : "#ffffff";
+  const subtleColor = isYellow ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)";
+  const faintColor  = isYellow ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.45)";
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  ctx.font = "600 38px Arial, Helvetica, sans-serif";
+  ctx.fillStyle = subtleColor;
+  ctx.fillText("TWISTER SPINNER", S / 2, 74);
+
+  ctx.strokeStyle = isYellow ? "rgba(0,0,0,0.18)" : "rgba(255,255,255,0.25)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(S * 0.2, 108);
+  ctx.lineTo(S * 0.8, 108);
+  ctx.stroke();
+
+  ctx.font = "192px serif";
+  ctx.fillStyle = textColor;
+  ctx.fillText(LIMB_EMOJI[result.partKey] ?? "🌀", S / 2, 298);
+
+  let limbPx = 152;
+  ctx.font = `900 ${limbPx}px "Arial Black", Arial, sans-serif`;
+  const maxW = S - 120;
+  while (ctx.measureText(partLabel.toUpperCase()).width > maxW && limbPx > 60) {
+    limbPx -= 6;
+    ctx.font = `900 ${limbPx}px "Arial Black", Arial, sans-serif`;
+  }
+  ctx.shadowColor = "rgba(0,0,0,0.25)";
+  ctx.shadowBlur = 18;
+  ctx.fillStyle = textColor;
+  ctx.fillText(partLabel.toUpperCase(), S / 2, 548);
+  ctx.shadowBlur = 0;
+
+  ctx.font = `700 86px Arial, Helvetica, sans-serif`;
+  ctx.fillStyle = subtleColor;
+  ctx.fillText(colorLabel.toUpperCase(), S / 2, 668);
+
+  if (playerName && round !== undefined) {
+    ctx.font = `500 50px Arial, Helvetica, sans-serif`;
+    ctx.fillStyle = subtleColor;
+    ctx.fillText(`Round ${round} · ${playerName}'s move`, S / 2, 780);
+  }
+
+  ctx.strokeStyle = faintColor;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(S * 0.3, S - 100);
+  ctx.lineTo(S * 0.7, S - 100);
+  ctx.stroke();
+
+  ctx.font = `400 36px Arial, Helvetica, sans-serif`;
+  ctx.fillStyle = faintColor;
+  ctx.fillText(SITE_DOMAIN, S / 2, S - 52);
+
+  return cv.toDataURL("image/png");
+}
+
+// ── Audio ─────────────────────────────────────────────────────────────────────
 class AudioSynthesizer {
   ctx: AudioContext | null = null;
   muted = false;
-
   init() {
-    if (!this.ctx) {
-      this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
+    if (!this.ctx) this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
   }
-
   playTick() {
     if (this.muted || !this.ctx) return;
     try {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
+      const { ctx } = this;
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
       osc.type = "sine";
-      osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.05);
-      gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.05);
+      osc.frequency.setValueAtTime(900, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1400, ctx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.04);
     } catch (_) {}
   }
-
-  playDing() {
+  playWin() {
     if (this.muted || !this.ctx) return;
-    try {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(523.25, this.ctx.currentTime);
-      gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1.5);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + 1.5);
-    } catch (_) {}
+    const { ctx } = this;
+    [523.25, 659.25, 783.99].forEach((freq, i) => {
+      setTimeout(() => {
+        try {
+          const osc = ctx.createOscillator(), gain = ctx.createGain();
+          osc.type = "triangle"; osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.22, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(); osc.stop(ctx.currentTime + 1.0);
+        } catch (_) {}
+      }, i * 120);
+    });
+  }
+  playChampion() {
+    if (this.muted || !this.ctx) return;
+    const { ctx } = this;
+    [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+      setTimeout(() => {
+        try {
+          const osc = ctx.createOscillator(), gain = ctx.createGain();
+          osc.type = "triangle"; osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.28, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.8);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(); osc.stop(ctx.currentTime + 1.8);
+        } catch (_) {}
+      }, i * 100);
+    });
   }
 }
-
 const audioSynth = new AudioSynthesizer();
 
-// --- Confetti burst (CSS animation, no library) ---
-function createConfetti() {
-  const colors = ["#E8192C", "#1565C0", "#FFD700", "#2E7D32"];
-  const container = document.createElement("div");
-  container.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;";
-  document.body.appendChild(container);
-  for (let i = 0; i < 100; i++) {
-    const el = document.createElement("div");
-    el.style.cssText = `position:absolute;width:${Math.random() * 10 + 5}px;height:${Math.random() * 10 + 5}px;background:${colors[Math.floor(Math.random() * colors.length)]};top:50%;left:50%;opacity:1;transform:translate(-50%,-50%) rotate(${Math.random() * 360}deg);transition:all ${Math.random() + 1}s cubic-bezier(.25,.46,.45,.94);`;
-    container.appendChild(el);
+function createConfetti(colors?: string[]) {
+  const c = colors ?? ["#E8192C","#1565C0","#F9A825","#2E7D32"];
+  const el = document.createElement("div");
+  el.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;";
+  document.body.appendChild(el);
+  for (let i = 0; i < 80; i++) {
+    const p = document.createElement("div");
+    p.style.cssText = `position:absolute;width:${Math.random()*10+4}px;height:${Math.random()*10+4}px;background:${c[Math.floor(Math.random()*c.length)]};border-radius:${Math.random()>0.5?"50%":"2px"};top:50%;left:50%;opacity:1;transform:translate(-50%,-50%);transition:all ${Math.random()*0.8+0.8}s cubic-bezier(.25,.46,.45,.94);`;
+    el.appendChild(p);
     setTimeout(() => {
-      const angle = Math.random() * Math.PI * 2;
-      const v = Math.random() * 500 + 200;
-      el.style.transform = `translate(calc(-50% + ${Math.cos(angle) * v}px),calc(-50% + ${Math.sin(angle) * v + 200}px)) rotate(${Math.random() * 720}deg)`;
-      el.style.opacity = "0";
+      const a = Math.random()*Math.PI*2, v = Math.random()*480+160;
+      p.style.transform = `translate(calc(-50% + ${Math.cos(a)*v}px),calc(-50% + ${Math.sin(a)*v+180}px)) rotate(${Math.random()*720}deg)`;
+      p.style.opacity = "0";
     }, 10);
   }
-  setTimeout(() => document.body.removeChild(container), 2000);
+  setTimeout(() => el.parentNode && document.body.removeChild(el), 2100);
 }
 
+// ── Brand SVG icons ───────────────────────────────────────────────────────────
+function WhatsAppIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  );
+}
+
+function XBirdIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.26 5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+  );
+}
+
+// ── Share Buttons ─────────────────────────────────────────────────────────────
+function ShareButtons({
+  result,
+  shareCardDataUrl,
+  show,
+  partLabel,
+  colorLabel,
+}: {
+  result: Segment;
+  shareCardDataUrl: string;
+  show: boolean;
+  partLabel: string;
+  colorLabel: string;
+}) {
+  const mobile = isMobileDevice();
+  const shareText = `I just got ${colorLabel} ${partLabel} in Twister! Can you beat me? 🌀 ${SITE_DOMAIN}`;
+
+  const handleWhatsApp = () => {
+    const url = mobile
+      ? `whatsapp://send?text=${encodeURIComponent(shareText)}`
+      : `https://web.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+    window.open(url, "_blank");
+  };
+
+  const handleTwitter = () => {
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`,
+      "_blank",
+      "width=550,height=420",
+    );
+  };
+
+  const triggerDownload = () => {
+    const a = document.createElement("a");
+    a.href = shareCardDataUrl;
+    a.download = `twister-result-${result.colorKey}-${result.partKey.replace("_", "-")}.png`;
+    a.click();
+  };
+
+  const handleCopyOrSave = async () => {
+    if (mobile) {
+      triggerDownload();
+      toast({ title: "Image saved!", description: "Check your downloads folder." });
+      return;
+    }
+    try {
+      const res = await fetch(shareCardDataUrl);
+      const blob = await res.blob();
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      toast({ title: "Image copied!", description: "Paste it anywhere." });
+    } catch (_) {
+      triggerDownload();
+      toast({ title: "Image downloaded", description: "Clipboard not available — saved as file instead." });
+    }
+  };
+
+  const btnBase =
+    "flex flex-col items-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all active:scale-95 hover:opacity-90 select-none min-h-[56px] justify-center";
+
+  return (
+    <div
+      className={`w-full transition-all duration-300 ${
+        show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
+      }`}
+      aria-hidden={!show}
+    >
+      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold text-center mb-2">
+        Share your result
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        <button onClick={handleWhatsApp} className={`${btnBase} bg-[#25D366] text-white shadow-sm`} aria-label="Share to WhatsApp">
+          <WhatsAppIcon />
+          <span>WhatsApp</span>
+        </button>
+        <button onClick={handleTwitter} className={`${btnBase} bg-black text-white shadow-sm`} aria-label="Share to X (Twitter)">
+          <XBirdIcon />
+          <span>X / Twitter</span>
+        </button>
+        <button onClick={handleCopyOrSave} className={`${btnBase} bg-card border border-border text-foreground hover:bg-accent/40`} aria-label={mobile ? "Save image" : "Copy image to clipboard"}>
+          {mobile ? <ImageDown className="w-5 h-5" /> : <ClipboardCopy className="w-5 h-5" />}
+          <span>{mobile ? "Save Image" : "Copy Image"}</span>
+        </button>
+        <button onClick={triggerDownload} className={`${btnBase} bg-card border border-border text-foreground hover:bg-accent/40`} aria-label="Download image">
+          <Download className="w-5 h-5" />
+          <span>Download</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── QueryClient ───────────────────────────────────────────────────────────────
 const queryClient = new QueryClient();
 
+// ════════════════════════════════════════════════════════════════════════════
+// SETUP PANEL (right-side panel, pre-game)
+// ════════════════════════════════════════════════════════════════════════════
+function SetupPanel({ onStart, onSolo }: { onStart: (names: string[]) => void; onSolo: () => void }) {
+  const [inputs, setInputs] = useState(["", ""]);
+  const filledCount = inputs.filter(n => n.trim().length > 0).length;
+  const canStart = filledCount >= 2;
+
+  const addPlayer = () => { if (inputs.length < 6) setInputs(p => [...p, ""]); };
+  const removePlayer = (i: number) => { if (inputs.length > 2) setInputs(p => p.filter((_, idx) => idx !== i)); };
+  const setName = (i: number, val: string) => setInputs(p => p.map((n, idx) => idx === i ? val : n));
+
+  return (
+    <div className="bg-card border border-border rounded-3xl shadow-lg p-5">
+      <div className="flex items-center gap-3 mb-5">
+        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+          <Users className="w-5 h-5 text-primary" />
+        </div>
+        <div>
+          <h2 className="text-base font-bold leading-tight">Players</h2>
+          <p className="text-xs text-muted-foreground">2–6 players</p>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2.5 mb-4">
+        {inputs.map((name, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all"
+              style={{
+                backgroundColor: name.trim() ? AVATAR_PALETTE[i % AVATAR_PALETTE.length].bg : "hsl(var(--muted))",
+                color: name.trim()
+                  ? (AVATAR_PALETTE[i % AVATAR_PALETTE.length].dark ? "#000" : "#fff")
+                  : "hsl(var(--muted-foreground))",
+              }}
+            >
+              {name.trim() ? getInitials(name) : i + 1}
+            </div>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(i, e.target.value)}
+              onKeyDown={e => e.key === "Enter" && canStart && onStart(inputs.map(n => n.trim()).filter(Boolean))}
+              placeholder={`Player ${i + 1}`}
+              maxLength={20}
+              className="flex-1 bg-background border border-border rounded-xl px-3 py-2 text-sm font-medium placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+              autoFocus={i === 0}
+            />
+            {inputs.length > 2 && (
+              <button
+                onClick={() => removePlayer(i)}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {inputs.length < 6 && (
+        <button
+          onClick={addPlayer}
+          className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border-2 border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary text-sm font-semibold transition-all mb-4"
+        >
+          <Plus className="w-4 h-4" /> Add Player
+        </button>
+      )}
+
+      <button
+        onClick={() => onStart(inputs.map(n => n.trim()).filter(Boolean))}
+        disabled={!canStart}
+        className="w-full py-3 rounded-2xl bg-primary text-primary-foreground font-bold text-sm transition-all hover:opacity-90 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md"
+      >
+        <ChevronRight className="w-4 h-4" /> Start Game
+      </button>
+
+      <button onClick={onSolo} className="w-full mt-3 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
+        Solo play (no tracking)
+      </button>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// SOLO PANEL (right-side panel during solo play)
+// ════════════════════════════════════════════════════════════════════════════
+function SoloPanel({
+  result, resultKey, isSpinning, shareCardDataUrl, showShare,
+  history, t, partLabel, colorLabel, onCopy, onReset, setHistory,
+}: {
+  result: Segment | null;
+  resultKey: number;
+  isSpinning: boolean;
+  shareCardDataUrl: string | null;
+  showShare: boolean;
+  history: HistoryItem[];
+  t: (k: string) => string;
+  partLabel: string;
+  colorLabel: string;
+  onCopy: () => void;
+  onReset: () => void;
+  setHistory: React.Dispatch<React.SetStateAction<HistoryItem[]>>;
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-muted-foreground">Solo Mode</span>
+        <button onClick={onReset} className="text-xs text-muted-foreground hover:text-primary transition-colors">
+          ← Setup
+        </button>
+      </div>
+
+      {/* Result card */}
+      <div className="rounded-2xl overflow-hidden shadow-sm">
+        {result && !isSpinning ? (
+          <div
+            key={resultKey}
+            className="result-pop px-5 py-5 flex flex-col items-center relative"
+            style={{ backgroundColor: result.hex }}
+          >
+            <button
+              onClick={onCopy}
+              data-testid="button-copy-result"
+              className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"
+              aria-label={t("copy")}
+            >
+              <Copy className="w-3.5 h-3.5" style={{ color: result.colorKey === "yellow" ? "#333" : "#fff" }} />
+            </button>
+            <div
+              className="font-black tracking-tight uppercase leading-tight text-center"
+              style={{ fontSize: "clamp(24px, 7vw, 40px)", color: result.colorKey === "yellow" ? "#222" : "#fff" }}
+              data-testid="text-result"
+            >
+              {partLabel}
+            </div>
+            <div
+              className="mt-2 text-sm font-bold uppercase tracking-widest"
+              style={{ color: result.colorKey === "yellow" ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.8)" }}
+            >
+              {colorLabel}
+            </div>
+          </div>
+        ) : (
+          <div className="px-5 py-5 flex items-center justify-center border-2 border-dashed border-border rounded-2xl min-h-[96px]">
+            <p className="text-muted-foreground text-sm font-medium">{t("spin_the_wheel")}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Share buttons */}
+      {result && shareCardDataUrl && !isSpinning && (
+        <ShareButtons
+          result={result}
+          shareCardDataUrl={shareCardDataUrl}
+          show={showShare}
+          partLabel={partLabel}
+          colorLabel={colorLabel}
+        />
+      )}
+
+      {/* History chips */}
+      {history.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">Recent</span>
+            <button
+              onClick={() => setHistory([])}
+              className="text-[10px] text-muted-foreground hover:text-destructive transition-colors"
+              data-testid="button-reset-history"
+            >
+              Clear
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {history.map((item, i) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border border-border bg-card shadow-sm"
+                style={{ borderLeftColor: item.colorHex, borderLeftWidth: 3 }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: item.colorHex }} />
+                <span className="text-foreground/80">{t(item.partKey)}</span>
+                {i === 0 && <span className="text-[9px] bg-primary/15 text-primary rounded px-1 font-bold">NEW</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// IN-GAME PANEL (right-side panel during multiplayer)
+// ════════════════════════════════════════════════════════════════════════════
+function InGamePanel({
+  players, currentIdx, round,
+  result, resultKey, isSpinning,
+  showShare, shareCardDataUrl,
+  awaitingNextTurn,
+  t, partLabel, colorLabel,
+  onNextTurn, onEliminatePlayer, onReset, onCopy,
+}: {
+  players: Player[];
+  currentIdx: number;
+  round: number;
+  result: Segment | null;
+  resultKey: number;
+  isSpinning: boolean;
+  showShare: boolean;
+  shareCardDataUrl: string | null;
+  awaitingNextTurn: boolean;
+  t: (k: string) => string;
+  partLabel: string;
+  colorLabel: string;
+  onNextTurn: () => void;
+  onEliminatePlayer: (idx: number) => void;
+  onReset: () => void;
+  onCopy: () => void;
+}) {
+  const current = players[currentIdx];
+
+  return (
+    <div className="flex flex-col gap-3">
+
+      {/* Round header */}
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-bold">Round {round} <span className="text-muted-foreground font-normal">· {players.length} left</span></span>
+        <button onClick={onReset} className="text-xs text-muted-foreground hover:text-primary transition-colors">
+          ← Setup
+        </button>
+      </div>
+
+      {/* Result card — slides in from top */}
+      <div className="rounded-2xl overflow-hidden shadow-sm">
+        {result && !isSpinning ? (
+          <div
+            key={resultKey}
+            className="result-pop px-5 py-5 flex flex-col items-center relative"
+            style={{ backgroundColor: result.hex }}
+          >
+            <button
+              onClick={onCopy}
+              data-testid="button-copy-result"
+              className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"
+              aria-label={t("copy")}
+            >
+              <Copy className="w-3.5 h-3.5" style={{ color: result.colorKey === "yellow" ? "#333" : "#fff" }} />
+            </button>
+            <div
+              className="font-black tracking-tight uppercase leading-tight text-center"
+              style={{ fontSize: "clamp(24px, 7vw, 40px)", color: result.colorKey === "yellow" ? "#222" : "#fff" }}
+              data-testid="text-result"
+            >
+              {partLabel}
+            </div>
+            <div
+              className="mt-2 text-sm font-bold uppercase tracking-widest"
+              style={{ color: result.colorKey === "yellow" ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.8)" }}
+            >
+              {colorLabel}
+            </div>
+            {current && (
+              <div
+                className="mt-1 text-xs font-semibold"
+                style={{ color: result.colorKey === "yellow" ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.65)" }}
+              >
+                {current.name}'s move
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="px-5 py-5 flex items-center justify-center border-2 border-dashed border-border rounded-2xl min-h-[96px]">
+            <p className="text-muted-foreground text-sm font-medium">
+              {current ? `${current.name}'s turn — spin!` : t("spin_the_wheel")}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Share buttons */}
+      {result && shareCardDataUrl && !isSpinning && (
+        <ShareButtons
+          result={result}
+          shareCardDataUrl={shareCardDataUrl}
+          show={showShare}
+          partLabel={partLabel}
+          colorLabel={colorLabel}
+        />
+      )}
+
+      {/* Next Turn button — only after share buttons have faded in */}
+      {awaitingNextTurn && showShare && (
+        <button
+          onClick={onNextTurn}
+          data-testid="button-next-turn"
+          className="w-full py-3 rounded-2xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 result-pop"
+        >
+          Next Turn <ChevronRight className="w-4 h-4" />
+        </button>
+      )}
+
+      {/* Player list */}
+      <div className="bg-card border border-border rounded-2xl overflow-hidden divide-y divide-border">
+        {players.map((p, i) => (
+          <div
+            key={p.id}
+            className="flex items-center gap-3 px-4 py-3 transition-colors"
+            style={i === currentIdx
+              ? { borderLeft: `3px solid ${p.avatarBg}`, backgroundColor: `${p.avatarBg}12` }
+              : { borderLeft: "3px solid transparent" }
+            }
+          >
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all ${i === currentIdx ? "shadow-md scale-105" : "opacity-70"}`}
+              style={{ backgroundColor: p.avatarBg, color: p.avatarDark ? "#000" : "#fff" }}
+            >
+              {getInitials(p.name)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className={`text-sm truncate ${i === currentIdx ? "font-bold" : "font-medium"}`}>{p.name}</div>
+              {p.lastMove ? (
+                <div className="text-xs text-muted-foreground truncate">
+                  {t(p.lastMove.partKey)} · <span className="font-semibold" style={{ color: p.lastMove.hex }}>{t(p.lastMove.colorKey)}</span>
+                </div>
+              ) : (
+                <div className="text-xs text-muted-foreground">No moves yet</div>
+              )}
+            </div>
+            <button
+              onClick={() => onEliminatePlayer(i)}
+              className="w-7 h-7 flex items-center justify-center rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+              title={`Eliminate ${p.name}`}
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Reset game */}
+      <button
+        onClick={onReset}
+        className="text-xs text-center text-muted-foreground hover:text-destructive py-1 transition-colors"
+      >
+        ↩ Reset Game
+      </button>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// WINNER OVERLAY
+// ════════════════════════════════════════════════════════════════════════════
+function WinnerOverlay({ winner, round, onPlayAgain }: { winner: Player; round: number; onPlayAgain: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-md px-4">
+      <div className="bg-card border border-border rounded-3xl shadow-2xl p-8 md:p-12 max-w-[400px] w-full text-center animate-in zoom-in-95 fade-in duration-500">
+        <div className="text-6xl mb-4">🏆</div>
+        <div
+          className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-4 shadow-lg"
+          style={{ backgroundColor: winner.avatarBg, color: winner.avatarDark ? "#000" : "#fff" }}
+        >
+          {getInitials(winner.name)}
+        </div>
+        <h2 className="text-3xl font-black tracking-tight mb-1">{winner.name} Wins!</h2>
+        <p className="text-muted-foreground text-sm mb-6">
+          Survived {round} round{round !== 1 ? "s" : ""} 🎉
+        </p>
+        <button
+          onClick={onPlayAgain}
+          className="w-full py-3 rounded-2xl bg-primary text-primary-foreground font-bold text-base hover:opacity-90 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
+        >
+          <RotateCcw className="w-4 h-4" /> Play Again
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// HOME
+// ════════════════════════════════════════════════════════════════════════════
 function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [result, setResult] = useState<Segment | null>(null);
-  const [history, setHistory] = useState<HistoryItem[]>([]);
 
-  // Active segment order (shuffled or reset)
+  const [isSpinning, setIsSpinning]   = useState(false);
+  const [result, setResult]           = useState<Segment | null>(null);
+  const [resultKey, setResultKey]     = useState(0);
+  const [history, setHistory]         = useState<HistoryItem[]>([]);
   const [activeSegments, setActiveSegments] = useState<Segment[]>(loadSegmentOrder);
-  // Keep a ref for use inside rAF callbacks (avoids stale closures)
   const activeSegmentsRef = useRef<Segment[]>(activeSegments);
+  const [muted, setMuted]             = useState(false);
+  const [voiceOn, setVoiceOn]         = useState(true);
+  const [speedMode, setSpeedMode]     = useState<SpeedMode>("normal");
+  const [theme, setTheme]             = useState(() => localStorage.getItem("theme") || "light");
+  const [lang, setLang]               = useState(() => localStorage.getItem("twisterLang") || "en");
 
-  // Settings
-  const [muted, setMuted] = useState(false);
-  const [voiceOn, setVoiceOn] = useState(true);
-  const [fastMode, setFastMode] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
+  const [shareCardDataUrl, setShareCardDataUrl] = useState<string | null>(null);
+  const [showShare, setShowShare]               = useState(false);
 
-  // Theme
-  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
+  const [gamePhase, setGamePhase]           = useState<GamePhase>("setup");
+  const [players, setPlayers]               = useState<Player[]>([]);
+  const [currentPlayerIdx, setCurrentPlayerIdx] = useState(0);
+  const [round, setRound]                   = useState(1);
+  const [winner, setWinner]                 = useState<Player | null>(null);
+  const [awaitingNextTurn, setAwaitingNextTurn] = useState(false);
+  const [isSolo, setIsSolo]                 = useState(false);
 
-  // Language
-  const [lang, setLang] = useState(() => localStorage.getItem("twisterLang") || "en");
+  const rotationRef        = useRef(0);
+  const animationRef       = useRef<number>(0);
+  const lastTickAngleRef   = useRef(0);
 
-  // Translation helper — returns translated string or falls back to English
   const t = useCallback((key: string): string => {
-    const langData = LANGUAGES[lang];
-    if (langData && langData.translations[key]) return langData.translations[key];
-    return enLang[key as keyof typeof enLang] || key;
+    const d = LANGUAGES[lang]?.translations;
+    return d?.[key] ?? (enLang as Record<string, string>)[key] ?? key;
   }, [lang]);
 
   const isRTL = LANGUAGES[lang]?.rtl ?? false;
 
-  // Rotation state refs (used in rAF loop, never triggers re-render)
-  const rotationRef = useRef(0);
-  const animationRef = useRef<number>(0);
-  const lastTickAngleRef = useRef(0);
-
-  // --- Theme effect ---
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // --- Language effect: set dir, persist ---
   useEffect(() => {
     document.documentElement.setAttribute("dir", isRTL ? "rtl" : "ltr");
     localStorage.setItem("twisterLang", lang);
   }, [lang, isRTL]);
 
-  // --- History: load and save ---
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("twisterHistory");
-      if (saved) setHistory(JSON.parse(saved));
-    } catch (_) {}
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("twisterHistory", JSON.stringify(history));
-  }, [history]);
-
-  // --- Mute sync ---
   useEffect(() => { audioSynth.muted = muted; }, [muted]);
 
-  // --- Keep activeSegmentsRef in sync with state ---
   useEffect(() => {
     activeSegmentsRef.current = activeSegments;
     saveSegmentOrder(activeSegments);
   }, [activeSegments]);
 
-  // --- Shuffle: randomize segment order ---
-  const handleShuffle = () => {
-    if (isSpinning) return;
-    setActiveSegments(fisherYatesShuffle(BASE_SEGMENTS));
-    setResult(null);
+  // ── Game actions ──────────────────────────────────────────────────────────
+  const handleStartGame = (names: string[]) => {
+    const newPlayers: Player[] = names.map((name, i) => ({
+      id: i, name,
+      avatarBg: AVATAR_PALETTE[i % AVATAR_PALETTE.length].bg,
+      avatarDark: AVATAR_PALETTE[i % AVATAR_PALETTE.length].dark,
+      lastMove: null, survivedRounds: 0,
+    }));
+    setPlayers(newPlayers); setCurrentPlayerIdx(0); setRound(1);
+    setWinner(null); setResult(null); setHistory([]);
+    setAwaitingNextTurn(false); setIsSolo(false);
+    setShareCardDataUrl(null); setShowShare(false);
+    setGamePhase("playing");
   };
 
-  // --- Reset: restore original order ---
-  const handleResetOrder = () => {
-    if (isSpinning) return;
-    setActiveSegments([...BASE_SEGMENTS]);
-    setResult(null);
+  const handleSoloPlay = () => {
+    setPlayers([]); setIsSolo(true); setGamePhase("playing");
+    setResult(null); setHistory([]);
+    setShareCardDataUrl(null); setShowShare(false);
   };
 
-  // --- Draw wheel on canvas using current activeSegments and translations ---
+  const handleNextTurn = () => {
+    const nextIdx = (currentPlayerIdx + 1) % players.length;
+    setCurrentPlayerIdx(nextIdx);
+    if (nextIdx === 0) setRound(r => r + 1);
+    setResult(null); setAwaitingNextTurn(false);
+    setShareCardDataUrl(null); setShowShare(false);
+  };
+
+  // Eliminate any player by index (not just the current player)
+  const handleEliminatePlayer = (idx: number) => {
+    const remaining = players.filter((_, i) => i !== idx);
+    if (remaining.length === 1) {
+      setWinner(remaining[0]); setPlayers(remaining); setGamePhase("winner");
+      audioSynth.playChampion();
+      createConfetti([remaining[0].avatarBg]);
+      return;
+    }
+    let newIdx = currentPlayerIdx;
+    if (idx < currentPlayerIdx) {
+      newIdx = currentPlayerIdx - 1;
+    } else if (idx === currentPlayerIdx) {
+      newIdx = currentPlayerIdx >= remaining.length ? 0 : currentPlayerIdx;
+    }
+    setPlayers(remaining); setCurrentPlayerIdx(newIdx);
+    setResult(null); setAwaitingNextTurn(false);
+    setShareCardDataUrl(null); setShowShare(false);
+  };
+
+  const handlePlayAgain = () => {
+    setGamePhase("setup"); setPlayers([]); setWinner(null);
+    setRound(1); setCurrentPlayerIdx(0);
+    setResult(null); setHistory([]); setAwaitingNextTurn(false); setIsSolo(false);
+    setShareCardDataUrl(null); setShowShare(false);
+  };
+
+  // ── Draw wheel ────────────────────────────────────────────────────────────
   const drawWheel = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    const w = canvas.width;
-    const h = canvas.height;
-    const cx = w / 2;
-    const cy = h / 2;
-    const radius = Math.min(cx, cy) - 10;
-    const segments = activeSegmentsRef.current;
+    const w = canvas.width, h = canvas.height;
+    const cx = w / 2, cy = h / 2;
+    const radius = Math.min(cx, cy) - 8;
+    const segs = activeSegmentsRef.current;
     const segAngle = (2 * Math.PI) / 16;
 
     ctx.clearRect(0, 0, w, h);
@@ -296,419 +942,348 @@ function Home() {
     ctx.translate(cx, cy);
     ctx.rotate(rotationRef.current);
 
+    // ── Draw segment fills ──
     for (let i = 0; i < 16; i++) {
-      const seg = segments[i];
-      const startAngle = i * segAngle;
-      const endAngle = startAngle + segAngle;
-
-      // Build radial gradient for depth
-      const grad = ctx.createRadialGradient(0, 0, radius * 0.1, 0, 0, radius);
+      const seg = segs[i];
+      const start = i * segAngle, end = start + segAngle;
+      const grad = ctx.createRadialGradient(0, 0, radius * 0.12, 0, 0, radius);
       grad.addColorStop(0, seg.gradDark);
       grad.addColorStop(1, seg.gradLight);
-
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.arc(0, 0, radius, startAngle, endAngle);
+      ctx.beginPath(); ctx.moveTo(0, 0);
+      ctx.arc(0, 0, radius, start, end);
       ctx.closePath();
-      ctx.fillStyle = grad;
-      ctx.fill();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = "#ffffff";
-      ctx.stroke();
+      ctx.fillStyle = grad; ctx.fill();
+      ctx.lineWidth = 2.5; ctx.strokeStyle = "rgba(255,255,255,0.7)"; ctx.stroke();
+    }
 
-      // Draw segment label (translated body part only — keeps wheel readable)
+    // ── Draw text labels on each segment ──
+    ctx.font = "bold 22px Arial, Helvetica, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    for (let i = 0; i < 16; i++) {
+      const seg = segs[i];
+      const midAngle = i * segAngle + segAngle / 2;
+      const isYellow = seg.colorKey === "yellow";
+      const [word1, word2] = SEGMENT_LABELS[seg.partKey];
+
       ctx.save();
-      ctx.rotate(startAngle + segAngle / 2);
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
-      // Yellow segments: dark text; others: white
-      ctx.fillStyle = seg.colorKey === "yellow" ? "#000000" : "#ffffff";
-      ctx.font = "bold 14px Inter, sans-serif";
-      // Translate only the body part (fitting on the segment)
-      const partLabel = enLang[seg.partKey as keyof typeof enLang] || seg.partKey;
-      ctx.fillText(partLabel, radius - 18, 0);
+      ctx.rotate(midAngle);
+      ctx.translate(radius * 0.62, 0);
+      ctx.rotate(Math.PI / 2);
+
+      ctx.fillStyle = isYellow ? "#222" : "#fff";
+      ctx.shadowColor = isYellow ? "rgba(0,0,0,0.15)" : "rgba(0,0,0,0.45)";
+      ctx.shadowBlur = 4;
+      ctx.fillText(word1, 0, -14);
+      ctx.fillText(word2, 0, 14);
+      ctx.shadowBlur = 0;
+
       ctx.restore();
     }
 
-    // Draw center hub (will be overlaid with SPIN button)
-    ctx.beginPath();
-    ctx.arc(0, 0, radius * 0.13, 0, 2 * Math.PI);
-    ctx.fillStyle = "#111";
-    ctx.fill();
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "#fff";
-    ctx.stroke();
+    // ── Outer border circle ──
+    ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.lineWidth = 4; ctx.strokeStyle = "rgba(255,255,255,0.5)"; ctx.stroke();
+
+    // ── Center hub ──
+    ctx.beginPath(); ctx.arc(0, 0, radius * 0.145, 0, Math.PI * 2);
+    ctx.fillStyle = "#111"; ctx.fill();
+    ctx.lineWidth = 5; ctx.strokeStyle = "#fff"; ctx.stroke();
 
     ctx.restore();
   }, []);
 
-  // Redraw whenever activeSegments change
-  useEffect(() => {
-    drawWheel();
-  }, [drawWheel, activeSegments]);
+  useEffect(() => { drawWheel(); }, [drawWheel, activeSegments]);
 
-  // --- Spin logic ---
+  // ── Spin ──────────────────────────────────────────────────────────────────
   const spin = () => {
-    if (isSpinning) return;
+    if (isSpinning || awaitingNextTurn) return;
     audioSynth.init();
+    flushSync(() => {
+      setIsSpinning(true);
+      setResult(null);
+      setShowShare(false);
+      setShareCardDataUrl(null);
+    });
 
-    setIsSpinning(true);
-    setResult(null);
-
-    const segments = activeSegmentsRef.current;
-    // Pick random target segment index (0–15)
-    const targetIndex = Math.floor(Math.random() * 16);
-    const targetSegment = segments[targetIndex];
-
+    const segs = activeSegmentsRef.current;
     const segAngle = (2 * Math.PI) / 16;
-    // Calculate the rotation so targetIndex lands at the top pointer (270° = 3π/2 in canvas coords)
-    const segCenterAngle = targetIndex * segAngle + segAngle / 2;
-    const topAngle = (3 * Math.PI) / 2;
-    let targetRotation = topAngle - segCenterAngle;
+    const { duration, spins } = SPEED_CONFIG[speedMode];
 
-    // Add extra full spins for realism
-    const extraSpins = fastMode ? 3 : 8;
-    targetRotation += extraSpins * 2 * Math.PI;
+    // Normalise current rotation to [0, 2π) then add full spins + a random extra angle.
+    // The winner is determined AFTER the wheel stops from the actual final position,
+    // so there is no pre-selected target segment and no angle-offset mismatch.
+    const startRot = ((rotationRef.current % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    rotationRef.current = startRot;
+    const targetRot = startRot + spins * 2 * Math.PI + Math.random() * 2 * Math.PI;
 
-    // Normalize current rotation to [0, 2π), then ensure we spin forward
-    rotationRef.current = rotationRef.current % (2 * Math.PI);
-    while (targetRotation <= rotationRef.current) {
-      targetRotation += 2 * Math.PI;
-    }
-
-    const duration = fastMode ? 2000 : 4000;
-    const startRotation = rotationRef.current;
     const startTime = performance.now();
-    lastTickAngleRef.current = startRotation;
+    lastTickAngleRef.current = startRot;
+
+    const currentPlayer = !isSolo && players.length > 0 ? players[currentPlayerIdx] : null;
+    const currentRound  = !isSolo && players.length > 0 ? round : undefined;
 
     const animate = (now: number) => {
       const progress = Math.min((now - startTime) / duration, 1);
-      // Ease-out cubic for natural slow-down
       const ease = 1 - Math.pow(1 - progress, 3);
-      rotationRef.current = startRotation + (targetRotation - startRotation) * ease;
+      rotationRef.current = startRot + (targetRot - startRot) * ease;
 
-      // Play tick sound each ~segment
       if (rotationRef.current - lastTickAngleRef.current >= segAngle) {
         audioSynth.playTick();
         lastTickAngleRef.current = rotationRef.current;
       }
-
       drawWheel();
 
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
       } else {
-        // Spin complete
+        // Determine the winning segment from the actual final wheel position.
+        // The pointer sits at 270° in canvas space (12 o'clock; 0° = 3 o'clock, CW positive).
+        // Segment i occupies [i·segAngle, (i+1)·segAngle] in the wheel's local frame.
+        // After rotating by normalizedDeg the segment whose LOCAL centre is closest to
+        // (270° − normalizedDeg) is the visual winner.
+        const finalDeg = rotationRef.current * (180 / Math.PI);
+        const normalizedDeg = ((finalDeg % 360) + 360) % 360;
+        const segmentAngle = 360 / 16;
+        const winningIndex = Math.floor(
+          ((270 - normalizedDeg - segmentAngle / 2 + 720) % 360) / segmentAngle
+        );
+        const target = segs[winningIndex];
+
         setIsSpinning(false);
-        setResult(targetSegment);
-        audioSynth.playDing();
+        setResult(target);
+        setResultKey(k => k + 1);
+        audioSynth.playWin();
         createConfetti();
 
-        // Voice announcement in current language
         if (voiceOn && "speechSynthesis" in window) {
-          const partText = t(targetSegment.partKey);
-          const colorText = t(targetSegment.colorKey);
-          const utterance = new SpeechSynthesisUtterance(`${partText} ${colorText}`);
-          utterance.rate = 1.1;
-          window.speechSynthesis.speak(utterance);
+          const utt = new SpeechSynthesisUtterance(`${t(target.partKey)} ${t(target.colorKey)}`);
+          utt.rate = 1.1;
+          window.speechSynthesis.speak(utt);
         }
 
-        // Add to history (store keys so display adapts to language changes)
+        if (!isSolo && players.length > 0) {
+          setPlayers(prev => prev.map((p, i) =>
+            i === currentPlayerIdx
+              ? { ...p, lastMove: { partKey: target.partKey, colorKey: target.colorKey, hex: target.hex }, survivedRounds: p.survivedRounds + 1 }
+              : p
+          ));
+          setAwaitingNextTurn(true);
+        }
+
         setHistory(prev =>
-          [{ id: Date.now(), partKey: targetSegment.partKey, colorKey: targetSegment.colorKey, colorHex: targetSegment.hex, timestamp: Date.now() }, ...prev].slice(0, 5)
+          [{ id: Date.now(), partKey: target.partKey, colorKey: target.colorKey, colorHex: target.hex }, ...prev].slice(0, 5)
         );
+
+        const partLabel  = t(target.partKey);
+        const colorLabel = t(target.colorKey);
+        const dataUrl = generateShareCard(target, partLabel, colorLabel, currentPlayer?.name, currentRound);
+        setShareCardDataUrl(dataUrl);
+        setTimeout(() => setShowShare(true), 300);
       }
     };
-
     animationRef.current = requestAnimationFrame(animate);
   };
 
   const copyResult = () => {
     if (!result) return;
-    const text = `${t(result.partKey)} - ${t(result.colorKey)}`;
+    const text = `${t(result.partKey)} • ${t(result.colorKey)}`;
     navigator.clipboard.writeText(text);
     toast({ title: t("copied_to_clipboard"), description: text });
   };
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    } else {
-      document.exitFullscreen();
-    }
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    else document.exitFullscreen();
   };
 
-  const removeHistoryItem = (id: number) => {
-    setHistory(prev => prev.filter(item => item.id !== id));
-  };
+  const spinDisabled = isSpinning || awaitingNextTurn;
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div
-      className="min-h-[100dvh] w-full flex flex-col items-center bg-background text-foreground pb-20 selection:bg-primary/30"
+      className="min-h-[100dvh] w-full flex flex-col bg-background text-foreground selection:bg-primary/30"
       dir={isRTL ? "rtl" : "ltr"}
     >
-      {/* ===== HEADER ===== */}
-      <header className="w-full max-w-[560px] mx-auto px-4 pt-5 pb-2 flex items-center justify-between z-10 relative gap-2">
-        <h1 className="text-xl md:text-2xl font-bold tracking-tight shrink-0">
-          {t("app_title")}
-        </h1>
+      {/* Winner overlay */}
+      {gamePhase === "winner" && winner && (
+        <WinnerOverlay winner={winner} round={round} onPlayAgain={handlePlayAgain} />
+      )}
 
-        <div className="flex items-center gap-1 flex-wrap justify-end">
-          {/* Language selector */}
+      {/* ARIA live region */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only" role="status">
+        {result ? `${t(result.partKey)} ${t(result.colorKey)}` : ""}
+      </div>
+
+      {/* HEADER */}
+      <header className="w-full px-4 py-3 flex items-center justify-between border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-20">
+        <h1 className="text-lg font-bold tracking-tight">{t("app_title")}</h1>
+        <div className="flex items-center gap-1.5">
           <select
             value={lang}
             onChange={e => setLang(e.target.value)}
-            className="text-xs bg-card border border-border rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground max-w-[110px]"
-            aria-label="Language"
+            className="text-xs bg-card border border-border rounded-lg px-2 py-1.5 text-foreground max-w-[108px] focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
             {Object.entries(LANGUAGES).map(([code, { label }]) => (
               <option key={code} value={code}>{label}</option>
             ))}
           </select>
-
-          <Button variant="ghost" size="icon" onClick={() => setTheme(t => t === "light" ? "dark" : "light")} className="rounded-full w-8 h-8">
+          <button
+            onClick={() => setTheme(th => th === "light" ? "dark" : "light")}
+            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-accent transition-colors"
+          >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </Button>
-
-          <Button variant="ghost" size="icon" onClick={toggleFullscreen} className="rounded-full w-8 h-8 hidden sm:flex">
-            <Maximize className="w-4 h-4" />
-          </Button>
+          </button>
         </div>
       </header>
 
-      {/* ===== MAIN ===== */}
-      <main className="flex-1 w-full max-w-[520px] mx-auto flex flex-col items-center px-4 relative z-10">
+      {/* MAIN — two-column layout */}
+      <main className="flex-1 w-full max-w-[960px] mx-auto flex flex-col md:flex-row gap-5 px-4 py-6">
 
-        {/* Wheel container */}
-        <div className="relative w-full max-w-[420px] aspect-square my-4 md:my-6">
+        {/* LEFT — Wheel + controls (flexible width) */}
+        <div className="flex flex-col items-center flex-1 min-w-0">
 
-          {/* Fixed pointer arrow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-4 z-20 flex flex-col items-center drop-shadow-md">
-            <div className="w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[24px] border-t-foreground" />
+          {/* Wheel */}
+          <div className="relative w-full max-w-[90vw] sm:max-w-[460px] md:max-w-full aspect-square">
+            {/* Pointer */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-3 z-20 drop-shadow-md">
+              <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[22px] border-t-foreground" />
+            </div>
+            {/* Glow effect */}
+            <div
+              className={`absolute inset-0 rounded-full blur-3xl transition-all duration-700 ${result ? "opacity-25" : "opacity-0"}`}
+              style={{ backgroundColor: result?.hex ?? "transparent" }}
+            />
+            {/* Canvas */}
+            <canvas
+              ref={canvasRef} width={800} height={800}
+              className="w-full h-full rounded-full shadow-[0_8px_40px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.5)] relative z-10"
+            />
+            {/* SPIN button — centered over canvas */}
+            <button
+              onClick={spin}
+              disabled={spinDisabled}
+              data-testid="button-spin"
+              aria-label="Spin the Twister wheel"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 w-[92px] h-[92px] rounded-full bg-card shadow-xl border-[3px] border-white/80 dark:border-white/20 flex items-center justify-center text-primary font-black text-base transition-all duration-150 hover:scale-105 active:scale-95 hover:shadow-2xl disabled:opacity-80 disabled:scale-100 disabled:cursor-default cursor-pointer select-none"
+            >
+              {isSpinning ? <Loader2 className="w-7 h-7 animate-spin" /> : t("spin")}
+            </button>
           </div>
 
-          {/* Winning color glow behind wheel */}
-          <div
-            className={`absolute inset-0 rounded-full blur-3xl transition-all duration-500 ${result ? "opacity-35" : "opacity-0"}`}
-            style={{ backgroundColor: result ? result.hex : "transparent" }}
-          />
-
-          {/* Canvas wheel */}
-          <canvas
-            ref={canvasRef}
-            width={800}
-            height={800}
-            className="w-full h-full rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] relative z-10 bg-card"
-          />
-
-          {/* Center SPIN button (overlaid on canvas hub) */}
-          <button
-            onClick={spin}
-            disabled={isSpinning}
-            data-testid="button-spin"
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 w-[88px] h-[88px] rounded-full bg-card shadow-lg border-[3px] border-white/80 dark:border-white/20 flex items-center justify-center text-primary font-bold text-sm transition-all duration-150 hover:scale-105 hover:shadow-xl disabled:opacity-90 disabled:scale-100 disabled:cursor-default cursor-pointer"
-          >
-            {isSpinning ? (
-              <Loader2 className="w-7 h-7 animate-spin" />
-            ) : result ? (
-              t("again")
-            ) : (
-              t("spin")
-            )}
-          </button>
-        </div>
-
-        {/* Result card */}
-        <div className="w-full max-w-[420px] h-[130px] mb-5">
-          <div
-            className={`w-full h-full rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden transition-all duration-300 ${!result ? "border-2 border-dashed border-border bg-transparent" : "bg-card shadow-sm"}`}
-            style={{ borderLeft: result ? `5px solid ${result.hex}` : undefined }}
-          >
-            {result ? (
-              <div className="w-full h-full flex flex-col items-center justify-center animate-in zoom-in-95 fade-in duration-300">
-                <Button
-                  variant="ghost" size="icon"
-                  className="absolute top-1.5 right-1.5 w-7 h-7 text-muted-foreground hover:text-foreground"
-                  onClick={copyResult}
-                  data-testid="button-copy-result"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                </Button>
-                <div className="text-[38px] leading-tight font-bold tracking-tight uppercase" data-testid="text-result">
-                  {t(result.partKey)}
-                </div>
-                <div
-                  className="px-3 py-0.5 mt-1.5 rounded-full text-white text-xs font-bold uppercase tracking-wider"
-                  style={{ backgroundColor: result.hex }}
-                >
-                  {t(result.colorKey)}
-                </div>
-              </div>
-            ) : (
-              <div className="text-muted-foreground font-semibold text-sm">{t("spin_the_wheel")}</div>
-            )}
-          </div>
-        </div>
-
-        {/* Controls bar */}
-        <div className="w-full max-w-[420px] flex items-center justify-center gap-1 bg-card rounded-full px-2 py-1.5 shadow-sm border border-border flex-wrap">
-
-          {/* Sound */}
-          <Button
-            variant="ghost" size="icon"
-            className={`rounded-full w-9 h-9 ${muted ? "text-muted-foreground" : "text-primary"}`}
-            onClick={() => setMuted(m => !m)}
-            data-testid="button-mute"
-          >
-            {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-          </Button>
-
-          <div className="w-px h-5 bg-border" />
-
-          {/* Voice */}
-          <Button
-            variant="ghost" size="icon"
-            className={`rounded-full w-9 h-9 ${!voiceOn ? "text-muted-foreground" : "text-primary"}`}
-            onClick={() => setVoiceOn(v => !v)}
-            data-testid="button-voice"
-          >
-            {!voiceOn ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-          </Button>
-
-          <div className="w-px h-5 bg-border" />
-
-          {/* Speed */}
-          <Button
-            variant="ghost"
-            className={`rounded-full px-3 font-semibold text-xs h-9 ${fastMode ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
-            onClick={() => setFastMode(f => !f)}
-            data-testid="toggle-fast-mode"
-          >
-            <Zap className="w-3.5 h-3.5 mr-1" />
-            {fastMode ? t("fast") : t("normal")}
-          </Button>
-
-          <div className="w-px h-5 bg-border" />
-
-          {/* Shuffle */}
-          <Button
-            variant="ghost" size="icon"
-            className="rounded-full w-9 h-9 text-muted-foreground hover:text-primary disabled:opacity-40"
-            onClick={handleShuffle}
-            disabled={isSpinning}
-            title={t("shuffle")}
-            data-testid="button-shuffle"
-          >
-            <Shuffle className="w-4 h-4" />
-          </Button>
-
-          {/* Reset order */}
-          <Button
-            variant="ghost" size="icon"
-            className="rounded-full w-9 h-9 text-muted-foreground hover:text-primary disabled:opacity-40"
-            onClick={handleResetOrder}
-            disabled={isSpinning}
-            title={t("reset_order")}
-            data-testid="button-reset-order"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </Button>
-
-          <div className="w-px h-5 bg-border" />
-
-          {/* History toggle */}
-          <Button
-            variant="ghost" size="icon"
-            className={`rounded-full w-9 h-9 ${showHistory ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}
-            onClick={() => setShowHistory(s => !s)}
-            data-testid="button-history"
-          >
-            <Clock className="w-4 h-4" />
-          </Button>
-        </div>
-
-        {/* History panel (slide in/out) */}
-        <div className={`w-full max-w-[420px] transition-[max-height,opacity,margin] duration-300 overflow-hidden ${showHistory ? "max-h-[500px] opacity-100 mt-4" : "max-h-0 opacity-0 mt-0"}`}>
-          <div className="bg-card border border-border rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-sm flex items-center gap-2">
-                <Clock className="w-4 h-4" /> {t("recent_spins")}
-              </h3>
+          {/* Controls bar */}
+          <div className="w-full max-w-[90vw] sm:max-w-[460px] md:max-w-full mt-4 bg-card border border-border rounded-2xl shadow-sm px-3 py-3">
+            <div className="flex items-center justify-around gap-1 flex-wrap">
+              <button onClick={() => setMuted(m => !m)} data-testid="button-mute"
+                className={`ctrl-btn ${muted ? "ctrl-btn-off" : "ctrl-btn-on"}`}>
+                {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                <span className="ctrl-label">{muted ? "Muted" : "Sound"}</span>
+              </button>
+              <div className="w-px h-8 bg-border shrink-0" />
+              <button onClick={() => setVoiceOn(v => !v)} data-testid="button-voice"
+                className={`ctrl-btn ${!voiceOn ? "ctrl-btn-off" : "ctrl-btn-on"}`}>
+                {voiceOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+                <span className="ctrl-label">{voiceOn ? "Voice" : "No voice"}</span>
+              </button>
+              <div className="w-px h-8 bg-border shrink-0" />
               <button
-                className="text-xs text-muted-foreground hover:text-destructive font-medium"
-                onClick={() => setHistory([])}
-                data-testid="button-reset-history"
+                onClick={() => setSpeedMode(s => SPEED_CYCLE[(SPEED_CYCLE.indexOf(s) + 1) % 3])}
+                data-testid="toggle-fast-mode"
+                className={`ctrl-btn ${speedMode !== "normal" ? "ctrl-btn-on" : "ctrl-btn-off"}`}
               >
-                {t("clear_all")}
+                <Zap className={`w-5 h-5 ${speedMode === "fast" ? "fill-primary" : ""}`} />
+                <span className="ctrl-label">{t(speedMode)}</span>
+              </button>
+              <div className="w-px h-8 bg-border shrink-0" />
+              <button
+                onClick={() => { if (!isSpinning) { setActiveSegments(fisherYatesShuffle(BASE_SEGMENTS)); setResult(null); } }}
+                disabled={isSpinning} data-testid="button-shuffle"
+                className="ctrl-btn ctrl-btn-off disabled:opacity-40"
+              >
+                <Shuffle className="w-5 h-5" />
+                <span className="ctrl-label">{t("shuffle")}</span>
+              </button>
+              <div className="w-px h-8 bg-border shrink-0" />
+              <button
+                onClick={() => { if (!isSpinning) { setActiveSegments([...BASE_SEGMENTS]); setResult(null); } }}
+                disabled={isSpinning} data-testid="button-reset-order"
+                className="ctrl-btn ctrl-btn-off disabled:opacity-40"
+              >
+                <RotateCcw className="w-5 h-5" />
+                <span className="ctrl-label">Reset</span>
+              </button>
+              <div className="w-px h-8 bg-border shrink-0" />
+              <button onClick={toggleFullscreen} className="ctrl-btn ctrl-btn-off">
+                <Maximize className="w-5 h-5" />
+                <span className="ctrl-label">Full</span>
               </button>
             </div>
-
-            {history.length > 0 ? (
-              <div className="flex flex-col gap-2">
-                {history.map(item => (
-                  <div key={item.id} className="flex items-center justify-between bg-background border border-border rounded-xl p-2.5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.colorHex }} />
-                      {/* Display translated label from stored keys */}
-                      <span className="text-sm font-medium">{t(item.partKey)} – {t(item.colorKey)}</span>
-                    </div>
-                    <button onClick={() => removeHistoryItem(item.id)} className="text-muted-foreground hover:text-foreground p-1">
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-5 text-sm text-muted-foreground">{t("no_recent_spins")}</div>
-            )}
           </div>
+
+        </div>
+
+        {/* RIGHT — Panel (fixed 320px on desktop, full width on mobile) */}
+        <div className="md:w-[320px] md:shrink-0">
+          {gamePhase === "setup" ? (
+            <SetupPanel onStart={handleStartGame} onSolo={handleSoloPlay} />
+          ) : isSolo ? (
+            <SoloPanel
+              result={result}
+              resultKey={resultKey}
+              isSpinning={isSpinning}
+              shareCardDataUrl={shareCardDataUrl}
+              showShare={showShare}
+              history={history}
+              t={t}
+              partLabel={result ? t(result.partKey) : ""}
+              colorLabel={result ? t(result.colorKey) : ""}
+              onCopy={copyResult}
+              onReset={handlePlayAgain}
+              setHistory={setHistory}
+            />
+          ) : (
+            <InGamePanel
+              players={players}
+              currentIdx={currentPlayerIdx}
+              round={round}
+              result={result}
+              resultKey={resultKey}
+              isSpinning={isSpinning}
+              showShare={showShare}
+              shareCardDataUrl={shareCardDataUrl}
+              awaitingNextTurn={awaitingNextTurn}
+              t={t}
+              partLabel={result ? t(result.partKey) : ""}
+              colorLabel={result ? t(result.colorKey) : ""}
+              onNextTurn={handleNextTurn}
+              onEliminatePlayer={handleEliminatePlayer}
+              onReset={handlePlayAgain}
+              onCopy={copyResult}
+            />
+          )}
         </div>
 
       </main>
 
-      {/* ===== SEO CONTENT SECTION (translated) ===== */}
-      <section className="w-full max-w-[520px] mx-auto mt-16 px-4 pb-4 prose prose-slate dark:prose-invert prose-headings:font-bold prose-sm">
-        <div className="bg-card border border-border p-6 md:p-8 rounded-3xl not-prose space-y-6">
+      {/* SEO content */}
+      <section className="w-full max-w-[960px] mx-auto mt-8 px-4 pb-8">
+        <div className="bg-card border border-border p-6 md:p-8 rounded-3xl space-y-6">
+          {(["seo_h2_what","seo_h2_how","seo_h2_moves","seo_h2_why"] as const).map(hkey => (
+            <div key={hkey}>
+              <h2 className="font-bold text-base mb-2">{t(hkey)}</h2>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {t(hkey.replace("h2_","") + "_p")}
+              </p>
+            </div>
+          ))}
           <div>
-            <h2 className="font-bold text-lg mb-2">{t("seo_h2_what")}</h2>
-            <p className="text-muted-foreground text-sm leading-relaxed">{t("seo_what_p")}</p>
-          </div>
-
-          <div>
-            <h2 className="font-bold text-lg mb-2">{t("seo_h2_how")}</h2>
-            <p className="text-muted-foreground text-sm leading-relaxed">{t("seo_how_p")}</p>
-          </div>
-
-          <div>
-            <h2 className="font-bold text-lg mb-2">{t("seo_h2_moves")}</h2>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-2">{t("seo_moves_p")}</p>
-            <ul className="text-sm text-muted-foreground space-y-1 list-none ps-0">
-              {(["seo_moves_red","seo_moves_blue","seo_moves_yellow","seo_moves_green"] as const).map(k => (
-                <li key={k} className="flex items-start gap-2">
-                  <span className="mt-1 w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: k.includes("red") ? "#E8192C" : k.includes("blue") ? "#1565C0" : k.includes("yellow") ? "#FFD700" : "#2E7D32" }} />
-                  {t(k)}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h2 className="font-bold text-lg mb-2">{t("seo_h2_why")}</h2>
-            <p className="text-muted-foreground text-sm leading-relaxed">{t("seo_why_p")}</p>
-          </div>
-
-          <div>
-            <h2 className="font-bold text-lg mb-4">{t("seo_h2_faq")}</h2>
+            <h2 className="font-bold text-base mb-3">{t("seo_h2_faq")}</h2>
             <div className="space-y-4">
-              {([
-                ["faq_q1","faq_a1"],
-                ["faq_q2","faq_a2"],
-                ["faq_q3","faq_a3"],
-                ["faq_q4","faq_a4"],
-              ] as const).map(([q, a]) => (
-                <div key={q}>
-                  <h3 className="font-semibold text-sm mb-1">{t(q)}</h3>
-                  <p className="text-muted-foreground text-sm">{t(a)}</p>
+              {[1,2,3,4].map(i => (
+                <div key={i}>
+                  <h3 className="font-semibold text-sm mb-1">{t(`faq_q${i}`)}</h3>
+                  <p className="text-muted-foreground text-sm">{t(`faq_a${i}`)}</p>
                 </div>
               ))}
             </div>
