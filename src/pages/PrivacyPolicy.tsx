@@ -1,22 +1,11 @@
 import React from 'react';
 import { Link } from 'wouter';
+import Navbar from '../components/Navbar'; // <-- Add this!
 
 const PrivacyPolicy = () => {
   return (
-    <div className="min-h-screen bg-[#121212] text-gray-200 font-sans selection:bg-purple-500/30">
-      {/* Simple Header */}
-      <nav className="p-6 border-b border-gray-800 flex justify-between items-center bg-[#1a1a1a]">
-        <Link href="/">
-          <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent cursor-pointer">
-            Twister Spinner
-          </span>
-        </Link>
-        <Link href="/">
-          <button className="text-sm bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg transition">
-            Back to Wheel
-          </button>
-        </Link>
-      </nav>
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 transition-colors duration-300">
+      <Navbar />
 
       <div className="max-w-4xl mx-auto py-12 px-6 leading-relaxed">
         <h1 className="text-4xl font-extrabold mb-2 text-white">Privacy Policy</h1>
