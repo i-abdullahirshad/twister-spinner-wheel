@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import NotFound from "@/pages/not-found";
-
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import ContactUs from "./components/ContactUs";
 // ── Language imports ─────────────────────────────────────────────────────────
 import enLang from "./lang/en.json";
 import arLang from "./lang/ar.json";
@@ -1305,6 +1306,20 @@ function Home({ routeLang }: { routeLang: string }) {
           </div>
         </div>
       </section>
+    {/* FOOTER LINKS */}
+      <footer className="w-full py-8 border-t border-border/40 mt-auto">
+        <div className="max-w-[960px] mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
+          <p>© 2026 Twister-Spinner.com</p>
+          <div className="flex gap-6 font-medium">
+            <button onClick={() => setLocation("/privacy")} className="hover:text-primary transition-colors">
+              Privacy Policy
+            </button>
+            <button onClick={() => setLocation("/contact")} className="hover:text-primary transition-colors">
+              Contact Us
+            </button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -1312,10 +1327,14 @@ function Home({ routeLang }: { routeLang: string }) {
 function Router() {
   return (
     <Switch>
-      {/* English is the default root */}
+      {/* 1. New Static Pages */}
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/contact" component={ContactUs} />
+
+      {/* 2. English default root */}
       <Route path="/">{() => <Home routeLang="en" />}</Route>
       
-      {/* Catch all language codes like /tr, /es, /ar */}
+      {/* 3. Catch all language codes */}
       <Route path="/:lang">
         {(params) => {
           const langCode = params.lang?.toLowerCase();
