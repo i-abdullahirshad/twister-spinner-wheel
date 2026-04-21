@@ -11,8 +11,8 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import NotFound from "@/pages/not-found";
-import PrivacyPolicy from "./components/PrivacyPolicy";
-import ContactUs from "./components/ContactUs";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import ContactUs from "./pages/ContactUs";
 // ── Language imports ─────────────────────────────────────────────────────────
 import enLang from "./lang/en.json";
 import arLang from "./lang/ar.json";
