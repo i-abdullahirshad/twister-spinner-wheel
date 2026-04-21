@@ -1047,7 +1047,7 @@ function Home() {
         const normalizedDeg = ((finalDeg % 360) + 360) % 360;
         const segmentAngle = 360 / 16;
         const winningIndex = Math.floor(
-          ((270 - normalizedDeg - segmentAngle / 2 + 720) % 360) / segmentAngle
+          ((270 - normalizedDeg + 720) % 360) / segmentAngle
         );
         const target = segs[winningIndex];
 
