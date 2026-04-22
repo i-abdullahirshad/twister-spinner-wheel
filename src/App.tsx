@@ -1136,7 +1136,7 @@ function Home({ routeLang }: { routeLang: string }) {
       <Navbar />
 
       {/* MAIN — two-column layout */}
-      <main className="flex-1 w-full max-w-[960px] mx-auto flex flex-col md:flex-row gap-5 px-4 py-6">
+      <main className="flex-1 w-full max-w-[960px] mx-auto flex flex-col md:flex-row md:items-center gap-5 px-4 py-6">
 
         {/* LEFT — Wheel + controls (flexible width) */}
         <div className="flex flex-col items-center flex-1 min-w-0">
@@ -1170,7 +1170,7 @@ function Home({ routeLang }: { routeLang: string }) {
           </div>
 
           {/* Controls bar */}
-          <div className="w-full max-w-[90vw] sm:max-w-[460px] md:max-w-full mt-4 bg-card border border-border rounded-2xl shadow-sm px-3 py-3">
+          <div className="w-full max-w-[90vw] sm:max-w-[460px] md:max-w-full mt-4 bg-card border border-border rounded-2xl shadow-sm px-3 py-3 mx-auto justify-center">
             <div className="flex items-center justify-around gap-1 flex-wrap">
               <button onClick={() => setMuted(m => !m)} data-testid="button-mute"
                 className={`ctrl-btn ${muted ? "ctrl-btn-off" : "ctrl-btn-on"}`}>
