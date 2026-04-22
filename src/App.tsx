@@ -1170,8 +1170,8 @@ function Home({ routeLang }: { routeLang: string }) {
           </div>
 
           {/* Controls bar */}
-          <div className="w-full max-w-[90vw] sm:max-w-[460px] md:max-w-full mt-4 bg-card border border-border rounded-2xl shadow-sm px-3 py-3 mx-auto justify-center">
-            <div className="flex items-center justify-around gap-1 flex-wrap">
+          <div className="w-full max-w-[90vw] sm:max-w-[460px] md:max-w-fit mt-4 bg-card border border-border rounded-2xl shadow-sm px-3 py-3 mx-auto">
+            <div className="flex items-center justify-center gap-2 flex-wrap">
               <button onClick={() => setMuted(m => !m)} data-testid="button-mute"
                 className={`ctrl-btn ${muted ? "ctrl-btn-off" : "ctrl-btn-on"}`}>
                 {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
