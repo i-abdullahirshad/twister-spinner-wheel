@@ -1418,15 +1418,33 @@ function Home({ routeLang }: { routeLang: string }) {
 }
 
 function Router() {
-  const [location] = useLocation(); // Get the current path
+  const [location] = useLocation();
 
-  // ── Dynamic Canonical Effect ──────────────────────────────────────────────
   useEffect(() => {
+    // 1. DYNAMIC CANONICAL LOGIC
     const canonicalElement = document.getElementById('canonical-link');
     if (canonicalElement) {
-      // Logic: if root, empty string; else use the current location path
       const path = location === "/" ? "" : location;
       canonicalElement.setAttribute('href', `https://twister-spinner.com${path}`);
+    }
+
+    // 2. DYNAMIC ROBOTS LOGIC (Index/NoFollow for Utility Pages)
+    const utilityPages = ["/about", "/privacy", "/terms-conditions", "/contact"];
+    let robotsMeta = document.querySelector('meta[name="robots"]');
+    
+    // If the meta tag doesn't exist yet, create it
+    if (!robotsMeta) {
+      robotsMeta = document.createElement('meta');
+      robotsMeta.setAttribute('name', 'robots');
+      document.head.appendChild(robotsMeta);
+    }
+
+    if (utilityPages.includes(location)) {
+      // Set to index, nofollow for utility pages
+      robotsMeta.setAttribute('content', 'index, nofollow');
+    } else {
+      // Keep your main game pages as index, follow
+      robotsMeta.setAttribute('content', 'index, follow');
     }
   }, [location]);
   // ──────────────────────────────────────────────────────────────────────────
