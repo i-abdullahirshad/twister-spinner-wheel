@@ -30,9 +30,9 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="p-4 md:p-6 border-b border-[#C6F6D5] dark:border-slate-800 flex justify-between items-center bg-[#F0FFF4] dark:bg-slate-950 sticky top-0 z-10 transition-colors duration-300">
+    <nav className="p-4 md:p-6 border-b border-[#FED7D7] dark:border-slate-800 flex justify-between items-center bg-[#FFF5F5] dark:bg-slate-950 sticky top-0 z-10 transition-colors duration-300">
       <Link href="/">
-        <span className="text-xl font-bold text-[#2F855A] dark:text-green-400 cursor-pointer">
+        <span className="text-xl font-bold text-[#C53030] dark:text-red-400 cursor-pointer">
           Twister Spinner
         </span>
       </Link>
@@ -42,7 +42,7 @@ const Navbar = () => {
           <select
             value={lang}
             onChange={handleLanguageChange}
-            className="text-xs bg-white dark:bg-slate-900 border border-[#C6F6D5] dark:border-slate-800 rounded-lg px-2 py-1.5 text-foreground max-w-[108px] focus:outline-none focus:ring-2 focus:ring-green-500/50 cursor-pointer"
+            className="text-xs bg-white dark:bg-slate-900 border border-[#FED7D7] dark:border-slate-800 rounded-lg px-2 py-1.5 text-foreground max-w-[108px] focus:outline-none focus:ring-2 focus:ring-red-500/50 cursor-pointer"
           >
             {Object.entries(LANGUAGES).map(([code, label]) => (
               <option key={code} value={code}>{label}</option>
@@ -52,7 +52,7 @@ const Navbar = () => {
 
         <button
           onClick={() => setTheme(th => th === "light" ? "dark" : "light")}
-          className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-green-100 dark:hover:bg-slate-800 text-[#2F855A] dark:text-green-400 transition-colors shrink-0"
+          className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-100 dark:hover:bg-slate-800 text-[#C53030] dark:text-red-400 transition-colors shrink-0"
           aria-label="Toggle theme"
         >
           {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -60,7 +60,7 @@ const Navbar = () => {
 
         {isInnerPage && (
           <Link href="/">
-            <button className="text-sm bg-white dark:bg-slate-900 hover:bg-green-50 dark:hover:bg-slate-800 text-[#2F855A] dark:text-green-400 px-3 md:px-4 py-2 rounded-lg transition border border-[#C6F6D5] dark:border-slate-800 font-medium flex items-center gap-1.5 shadow-sm shrink-0">
+            <button className="text-sm bg-white dark:bg-slate-900 hover:bg-red-50 dark:hover:bg-slate-800 text-[#C53030] dark:text-red-400 px-3 md:px-4 py-2 rounded-lg transition border border-[#FED7D7] dark:border-slate-800 font-medium flex items-center gap-1.5 shadow-sm shrink-0">
               <ChevronLeft className="w-4 h-4" /> <span className="hidden sm:inline">Back</span>
             </button>
           </Link>
