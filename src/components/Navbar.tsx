@@ -76,5 +76,6 @@ const Navbar = () => {
       </div>
     </nav>
   );
+}; // <-- This was the missing curly brace!
 
 export default Navbar;
