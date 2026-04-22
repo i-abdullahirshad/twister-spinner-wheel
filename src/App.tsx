@@ -1220,6 +1220,8 @@ function Home({ routeLang }: { routeLang: string }) {
             </div>
           </div>
 
+        </div>
+        
         {/* RIGHT — Panel (fixed 320px on desktop, full width on mobile) */}
         <div className="md:w-[320px] md:shrink-0">
           {gamePhase === "setup" ? (
