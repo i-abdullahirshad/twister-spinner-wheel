@@ -1170,55 +1170,55 @@ function Home({ routeLang }: { routeLang: string }) {
           </div>
 
           {/* Controls bar */}
-          <div className="mt-4 bg-card border border-border rounded-2xl shadow-sm px-3 py-3 mx-auto w-fit max-w-[100vw]">
-            <div className="flex items-center justify-center gap-2 flex-wrap">
-              <button onClick={() => setMuted(m => !m)} data-testid="button-mute"
-                className={`ctrl-btn ${muted ? "ctrl-btn-off" : "ctrl-btn-on"}`}>
-                {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                <span className="ctrl-label">{muted ? "Muted" : "Sound"}</span>
-              </button>
-              <div className="w-px h-8 bg-border shrink-0" />
-              <button onClick={() => setVoiceOn(v => !v)} data-testid="button-voice"
-                className={`ctrl-btn ${!voiceOn ? "ctrl-btn-off" : "ctrl-btn-on"}`}>
-                {voiceOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
-                <span className="ctrl-label">{voiceOn ? "Voice" : "No voice"}</span>
-              </button>
-              <div className="w-px h-8 bg-border shrink-0" />
-              <button
-                onClick={() => setSpeedMode(s => SPEED_CYCLE[(SPEED_CYCLE.indexOf(s) + 1) % 3])}
-                data-testid="toggle-fast-mode"
-                className={`ctrl-btn ${speedMode !== "normal" ? "ctrl-btn-on" : "ctrl-btn-off"}`}
-              >
-                <Zap className={`w-5 h-5 ${speedMode === "fast" ? "fill-primary" : ""}`} />
-                <span className="ctrl-label">{t(speedMode)}</span>
-              </button>
-              <div className="w-px h-8 bg-border shrink-0" />
-              <button
-                onClick={() => { if (!isSpinning) { setActiveSegments(fisherYatesShuffle(BASE_SEGMENTS)); setResult(null); } }}
-                disabled={isSpinning} data-testid="button-shuffle"
-                className="ctrl-btn ctrl-btn-off disabled:opacity-40"
-              >
-                <Shuffle className="w-5 h-5" />
-                <span className="ctrl-label">{t("shuffle")}</span>
-              </button>
-              <div className="w-px h-8 bg-border shrink-0" />
-              <button
-                onClick={() => { if (!isSpinning) { setActiveSegments([...BASE_SEGMENTS]); setResult(null); } }}
-                disabled={isSpinning} data-testid="button-reset-order"
-                className="ctrl-btn ctrl-btn-off disabled:opacity-40"
-              >
-                <RotateCcw className="w-5 h-5" />
-                <span className="ctrl-label">Reset</span>
-              </button>
-              <div className="w-px h-8 bg-border shrink-0" />
-              <button onClick={toggleFullscreen} className="ctrl-btn ctrl-btn-off">
-                <Maximize className="w-5 h-5" />
-                <span className="ctrl-label">Full</span>
-              </button>
+          <div className="mt-4 w-full flex justify-center">
+            <div className="bg-card border border-border rounded-2xl shadow-sm px-3 py-3 max-w-[100vw]">
+              <div className="flex items-center justify-center gap-2 flex-wrap">
+                <button onClick={() => setMuted(m => !m)} data-testid="button-mute"
+                  className={`ctrl-btn ${muted ? "ctrl-btn-off" : "ctrl-btn-on"}`}>
+                  {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                  <span className="ctrl-label">{muted ? "Muted" : "Sound"}</span>
+                </button>
+                <div className="w-px h-8 bg-border shrink-0" />
+                <button onClick={() => setVoiceOn(v => !v)} data-testid="button-voice"
+                  className={`ctrl-btn ${!voiceOn ? "ctrl-btn-off" : "ctrl-btn-on"}`}>
+                  {voiceOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+                  <span className="ctrl-label">{voiceOn ? "Voice" : "No voice"}</span>
+                </button>
+                <div className="w-px h-8 bg-border shrink-0" />
+                <button
+                  onClick={() => setSpeedMode(s => SPEED_CYCLE[(SPEED_CYCLE.indexOf(s) + 1) % 3])}
+                  data-testid="toggle-fast-mode"
+                  className={`ctrl-btn ${speedMode !== "normal" ? "ctrl-btn-on" : "ctrl-btn-off"}`}
+                >
+                  <Zap className={`w-5 h-5 ${speedMode === "fast" ? "fill-primary" : ""}`} />
+                  <span className="ctrl-label">{t(speedMode)}</span>
+                </button>
+                <div className="w-px h-8 bg-border shrink-0" />
+                <button
+                  onClick={() => { if (!isSpinning) { setActiveSegments(fisherYatesShuffle(BASE_SEGMENTS)); setResult(null); } }}
+                  disabled={isSpinning} data-testid="button-shuffle"
+                  className="ctrl-btn ctrl-btn-off disabled:opacity-40"
+                >
+                  <Shuffle className="w-5 h-5" />
+                  <span className="ctrl-label">{t("shuffle")}</span>
+                </button>
+                <div className="w-px h-8 bg-border shrink-0" />
+                <button
+                  onClick={() => { if (!isSpinning) { setActiveSegments([...BASE_SEGMENTS]); setResult(null); } }}
+                  disabled={isSpinning} data-testid="button-reset-order"
+                  className="ctrl-btn ctrl-btn-off disabled:opacity-40"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                  <span className="ctrl-label">Reset</span>
+                </button>
+                <div className="w-px h-8 bg-border shrink-0" />
+                <button onClick={toggleFullscreen} className="ctrl-btn ctrl-btn-off">
+                  <Maximize className="w-5 h-5" />
+                  <span className="ctrl-label">Full</span>
+                </button>
+              </div>
             </div>
           </div>
-
-        </div>
 
         {/* RIGHT — Panel (fixed 320px on desktop, full width on mobile) */}
         <div className="md:w-[320px] md:shrink-0">
