@@ -1418,6 +1418,19 @@ function Home({ routeLang }: { routeLang: string }) {
 }
 
 function Router() {
+  const [location] = useLocation(); // Get the current path
+
+  // ── Dynamic Canonical Effect ──────────────────────────────────────────────
+  useEffect(() => {
+    const canonicalElement = document.getElementById('canonical-link');
+    if (canonicalElement) {
+      // Logic: if root, empty string; else use the current location path
+      const path = location === "/" ? "" : location;
+      canonicalElement.setAttribute('href', `https://twister-spinner.com${path}`);
+    }
+  }, [location]);
+  // ──────────────────────────────────────────────────────────────────────────
+  
   return (
     <Switch>
       {/* Static Pages */}
