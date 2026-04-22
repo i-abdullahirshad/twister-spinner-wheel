@@ -1270,7 +1270,7 @@ function Home({ routeLang }: { routeLang: string }) {
           
           {/* Intro Section */}
           <div className="space-y-4">
-            <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight leading-tight">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-tight">
               {t("seo_h1")}
             </h1>
             <p>{t("seo_intro_p1")}</p>
