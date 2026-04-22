@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>https://twister-spinner.com/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <url>
+    <loc>https://twister-spinner.com/en</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://twister-spinner.com/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://twister-spinner.com/privacy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://twister-spinner.com/terms-conditions</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://twister-spinner.com/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url><loc>https://twister-spinner.com/es</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/fr</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/de</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/it</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/pt</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/nl</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/sv</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/pl</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/ru</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/tr</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/hi</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/bn</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/ur</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/ar</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/id</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/ms</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/vi</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/ja</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/ko</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/zh-cn</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://twister-spinner.com/zh-tw</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+</urlset>
