@@ -37,7 +37,6 @@ const Navbar = () => {
   return (
     <nav className="p-4 md:p-6 border-b border-[#BEE3F8] dark:border-slate-800 flex justify-between items-center bg-[#EBF8FF] dark:bg-slate-950 sticky top-0 z-10 transition-colors duration-300">
       <Link href="/">
-        {/* Changed from gradient to Deep Blue text */}
         <span className="text-xl font-bold text-[#2B6CB0] dark:text-blue-400 cursor-pointer">
           Twister Spinner
         </span>
@@ -49,7 +48,6 @@ const Navbar = () => {
           <select
             value={lang}
             onChange={handleLanguageChange}
-            {/* Added subtle blue border to match navbar */}
             className="text-xs bg-white dark:bg-slate-900 border border-[#BEE3F8] dark:border-slate-800 rounded-lg px-2 py-1.5 text-foreground max-w-[108px] focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer"
           >
             {Object.entries(LANGUAGES).map(([code, label]) => (
@@ -78,6 +76,5 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
 
 export default Navbar;
