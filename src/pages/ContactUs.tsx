@@ -1,6 +1,7 @@
 import React from 'react';
 import { Mail } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const ContactUs = () => {
   return (
@@ -41,9 +42,7 @@ const ContactUs = () => {
         </div>
       </div>
 
-      <footer className="py-12 text-center border-t border-border text-muted-foreground text-sm">
-        © 2026 Twister-Spinner.com
-      </footer>
+      <Footer />
     </div>
   );
 };
