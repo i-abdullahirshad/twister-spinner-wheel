@@ -1265,29 +1265,136 @@ function Home({ routeLang }: { routeLang: string }) {
       </main>
 
       {/* SEO content */}
-      <section className="w-full max-w-[960px] mx-auto mt-8 px-4 pb-8">
-        <div className="bg-card border border-border p-6 md:p-8 rounded-3xl space-y-6">
-          {(["seo_h2_what","seo_h2_how","seo_h2_moves","seo_h2_why"] as const).map(hkey => (
-            <div key={hkey}>
-              <h2 className="font-bold text-base mb-2">{t(hkey)}</h2>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                {t(hkey.replace("h2_","") + "_p")}
-              </p>
+      <section className="w-full max-w-[960px] mx-auto mt-12 px-4 pb-16">
+        <div className="bg-card border border-border p-6 md:p-10 rounded-3xl space-y-10 text-foreground/80 leading-relaxed text-sm md:text-base shadow-sm">
+          
+          {/* Intro Section */}
+          <div className="space-y-4">
+            <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight leading-tight">
+              {t("seo_h1")}
+            </h1>
+            <p>{t("seo_intro_p1")}</p>
+            <p>{t("seo_intro_p2")}</p>
+          </div>
+
+          {/* What Is It */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-foreground">{t("seo_what_h2")}</h2>
+            <p>{t("seo_what_p1")}</p>
+            <p>{t("seo_what_p2")}</p>
+          </div>
+
+          {/* How to Use */}
+          <div className="space-y-4 bg-muted/30 p-6 rounded-2xl border border-border">
+            <h2 className="text-2xl font-bold text-foreground">{t("seo_how_h2")}</h2>
+            <p>{t("seo_how_p1")}</p>
+            <ol className="list-decimal pl-5 space-y-2 font-medium text-foreground">
+              <li>{t("seo_how_li1")}</li>
+              <li>{t("seo_how_li2")}</li>
+              <li>{t("seo_how_li3")}</li>
+              <li>{t("seo_how_li4")}</li>
+              <li>{t("seo_how_li5")}</li>
+              <li>{t("seo_how_li6")}</li>
+            </ol>
+            <p className="pt-2">{t("seo_how_p2")}</p>
+          </div>
+
+          {/* Solo Play */}
+          <div className="space-y-2">
+            <h3 className="text-xl font-bold text-foreground">{t("seo_solo_h3")}</h3>
+            <p>{t("seo_solo_p1")}</p>
+          </div>
+
+          {/* Table Section */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-foreground">{t("seo_moves_h2")}</h2>
+            <p>{t("seo_moves_p1")}</p>
+            <div className="overflow-hidden border border-border rounded-xl shadow-sm">
+              <table className="w-full text-left text-sm md:text-base">
+                <thead className="bg-muted text-foreground">
+                  <tr>
+                    <th className="p-4 font-bold border-b border-border">{t("seo_table_h1")}</th>
+                    <th className="p-4 font-bold border-b border-border">{t("seo_table_h2")}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border bg-card">
+                  {[1, 2, 3, 4].map((num) => (
+                    <tr key={num} className="hover:bg-muted/30 transition-colors">
+                      <td className="p-4 font-semibold text-foreground">{t(`seo_table_r${num}`)}</td>
+                      <td className="p-4">{t("seo_table_colors")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
-          <div>
-            <h2 className="font-bold text-base mb-3">{t("seo_h2_faq")}</h2>
-            <div className="space-y-4">
-              {[1,2,3,4].map(i => (
-                <div key={i}>
-                  <h3 className="font-semibold text-sm mb-1">{t(`faq_q${i}`)}</h3>
-                  <p className="text-muted-foreground text-sm">{t(`faq_a${i}`)}</p>
+            <p>{t("seo_moves_p2")}</p>
+          </div>
+
+          {/* Controls Bar */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-foreground">{t("seo_controls_h2")}</h2>
+            <p>{t("seo_controls_p1")}</p>
+            <ul className="list-disc pl-5 space-y-3">
+              {[1, 2, 3, 4, 5, 6].map((num) => (
+                <li key={num}>
+                  <strong className="text-foreground">{t(`seo_controls_li${num}_title`)}</strong>
+                  {t(`seo_controls_li${num}_desc`)}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Why Use */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-foreground">{t("seo_why_h2")}</h2>
+            <p>{t("seo_why_p1")}</p>
+            <p>{t("seo_why_p2")}</p>
+            <ul className="list-disc pl-5 space-y-3">
+              {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                <li key={num}>
+                  <strong className="text-foreground">{t(`seo_why_li${num}_title`)}</strong>
+                  {t(`seo_why_li${num}_desc`)}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Tips */}
+          <div className="space-y-4 bg-primary/5 p-6 rounded-2xl border border-primary/20">
+            <h2 className="text-2xl font-bold text-primary">{t("seo_tips_h2")}</h2>
+            <p>{t("seo_tips_p1")}</p>
+            <ul className="list-disc pl-5 space-y-3">
+              {[1, 2, 3, 4, 5].map((num) => (
+                <li key={num}>
+                  <strong className="text-foreground">{t(`seo_tips_li${num}_title`)}</strong>
+                  {t(`seo_tips_li${num}_desc`)}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* FAQ */}
+          <div className="space-y-6 pt-4 border-t border-border">
+            <h2 className="text-2xl font-bold text-foreground">{t("seo_faq_h2")}</h2>
+            <div className="grid gap-6 md:grid-cols-2">
+              {[1, 2, 3, 4, 5].map((num) => (
+                <div key={num} className="space-y-2">
+                  <h3 className="font-bold text-foreground text-base">{t(`faq_q${num}`)}</h3>
+                  <p className="text-sm">{t(`faq_a${num}`)}</p>
                 </div>
               ))}
             </div>
           </div>
+
+          {/* Ready to Play */}
+          <div className="text-center bg-card border border-border p-8 rounded-2xl shadow-sm mt-8">
+            <h2 className="text-2xl font-black text-foreground mb-3">{t("seo_ready_h2")}</h2>
+            <p className="max-w-2xl mx-auto">{t("seo_ready_p1")}</p>
+          </div>
+
         </div>
       </section>
+      
     {/* FOOTER LINKS */}
       <Footer />
     </div>
