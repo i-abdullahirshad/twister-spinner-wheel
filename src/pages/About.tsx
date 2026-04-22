@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'wouter';
 import { Volume2, Zap, Users, ShieldCheck, ChevronLeft } from 'lucide-react';
 import Navbar from '../components/Navbar'; // <-- Add this!
+import Footer from '../components/Footer';
 
 const About = () => {
   return (
@@ -114,9 +115,7 @@ const About = () => {
         </div>
       </div>
 
-      <footer className="py-12 text-center border-t border-border text-muted-foreground text-sm">
-        © 2026 Twister-Spinner.com
-      </footer>
+      <Footer />
     </div>
   );
 };
