@@ -16,6 +16,7 @@ import ContactUs from "./pages/ContactUs";
 import TermsConditions from "./pages/TermsConditions"; // New
 import About from "./pages/About";                  // New
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 // ── Language imports ─────────────────────────────────────────────────────────
 import enLang from "./lang/en.json";
 import arLang from "./lang/ar.json";
@@ -1287,25 +1288,7 @@ function Home({ routeLang }: { routeLang: string }) {
         </div>
       </section>
     {/* FOOTER LINKS */}
-      <footer className="w-full py-8 border-t border-border/40 mt-auto">
-        <div className="max-w-[960px] mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
-          <p>© 2026 Twister-Spinner.com</p>
-          <div className="flex gap-4 md:gap-6 font-medium flex-wrap justify-center">
-            <button onClick={() => setLocation("/about")} className="hover:text-primary transition-colors">
-              About Us
-            </button>
-            <button onClick={() => setLocation("/privacy")} className="hover:text-primary transition-colors">
-              Privacy Policy
-            </button>
-            <button onClick={() => setLocation("/terms-conditions")} className="hover:text-primary transition-colors">
-              Terms & Conditions
-            </button>
-            <button onClick={() => setLocation("/contact")} className="hover:text-primary transition-colors">
-              Contact Us
-            </button>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
