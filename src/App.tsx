@@ -878,6 +878,22 @@ function Home({ routeLang }: { routeLang: string }) {
     localStorage.setItem("twisterLang", lang);
   }, [lang, isRTL]);
 
+  // 👇 ADD YOUR NEW DYNAMIC SEO EFFECT HERE 👇
+  useEffect(() => {
+    // 1. Changes the hover tab text (SEO Title) dynamically
+    document.title = t("seo_h1"); 
+
+    // 2. Changes the hidden SEO description dynamically
+    let metaDescription = document.querySelector('meta[name="description"]');
+    if (!metaDescription) {
+      metaDescription = document.createElement('meta');
+      metaDescription.setAttribute('name', 'description');
+      document.head.appendChild(metaDescription);
+    }
+    metaDescription.setAttribute('content', t("seo_intro_p1")); 
+  }, [t]);
+  // 👆 ===================================== 👆
+
   useEffect(() => { audioSynth.muted = muted; }, [muted]);
 
   useEffect(() => {
