@@ -21,7 +21,7 @@ const HowToMakeTwisterSpinner = () => {
           
           {/* Header Section */}
           <div className="space-y-4 border-b border-border pb-6">
-            <h1 className="text-3xl md:text-4xl font-black text-[#C53030] dark:text-red-400 tracking-tight leading-tight">
+            <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight leading-tight">
               How to Make a Twister Spinner at Home - DIY Twister Spinner
             </h1>
             <p>
