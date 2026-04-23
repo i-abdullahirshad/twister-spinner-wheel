@@ -17,6 +17,7 @@ import TermsConditions from "./pages/TermsConditions"; // New
 import About from "./pages/About";                  // New
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import HowToMakeTwisterSpinner from "./pages/HowToMakeTwisterSpinner";
 // ── Language imports ─────────────────────────────────────────────────────────
 import enLang from "./lang/en.json";
 import arLang from "./lang/ar.json";
@@ -1456,6 +1457,9 @@ function Router() {
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/terms-conditions" component={TermsConditions} />
       <Route path="/contact" component={ContactUs} />
+
+      {/* 👇 Your brand new page 👇 */}
+      <Route path="/how-to-make-twister-spinner-at-home" component={HowToMakeTwisterSpinner} />
 
       {/* English default root */}
       <Route path="/">{() => <Home routeLang="en" />}</Route>
