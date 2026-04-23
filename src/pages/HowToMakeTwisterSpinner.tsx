@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
-const HowToPlay = () => {
+const HowToMakeTwisterSpinner = () => {
+  useEffect(() => {
+    document.title = "How to Make a Twister Spinner at Home - DIY Twister Spinner";
+    
+    let metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Learn how to make a DIY Twister spinner at home with cardboard or wood. A complete guide to building your own Twister game spinner.');
+    }
+  }, []);
+
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-background selection:bg-primary/30 pt-8 pb-16">
-      <main className="flex-1 w-full max-w-[960px] mx-auto px-4">
-        
-        {/* Article Container */}
+    <div className="min-h-[100dvh] flex flex-col bg-background selection:bg-primary/30">
+      <Navbar />
+
+      <main className="flex-1 w-full max-w-[960px] mx-auto px-4 pt-8 pb-16">
         <div className="bg-card border border-border p-6 md:p-10 rounded-3xl space-y-8 text-foreground/80 leading-relaxed text-sm md:text-base shadow-sm">
           
           {/* Header Section */}
@@ -162,8 +173,10 @@ const HowToPlay = () => {
 
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 };
 
-export default HowToPlay;
+export default HowToMakeTwisterSpinner;
