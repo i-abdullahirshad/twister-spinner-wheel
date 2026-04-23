@@ -1393,7 +1393,7 @@ function Home({ routeLang }: { routeLang: string }) {
           <div className="space-y-6 pt-4 border-t border-border">
             <h2 className="text-2xl font-bold text-foreground">{t("seo_faq_h2")}</h2>
             <div className="grid gap-6 md:grid-cols-2">
-              {[1, 2, 3, 4, 5].map((num) => (
+              {[1, 2, 3, 4, 5, 6, 7].map((num) => (
                 <div key={num} className="space-y-2">
                   <h3 className="font-bold text-foreground text-base">{t(`faq_q${num}`)}</h3>
                   <p className="text-sm">{t(`faq_a${num}`)}</p>
