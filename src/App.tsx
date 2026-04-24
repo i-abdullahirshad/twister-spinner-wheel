@@ -1102,7 +1102,7 @@ function Home({ routeLang }: { routeLang: string }) {
 
         if (voiceOn && "speechSynthesis" in window) {
           const utt = new SpeechSynthesisUtterance(`${t(target.partKey)} ${t(target.colorKey)}`);
-          utt.rate = 1.0;
+          utt.rate = 0.85;
           window.speechSynthesis.speak(utt);
         }
 
