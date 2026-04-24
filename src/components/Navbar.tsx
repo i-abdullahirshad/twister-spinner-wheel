@@ -12,10 +12,10 @@ const LANGUAGES: Record<string, string> = {
 
 // Organize your links here so they are easy to edit later
 const NAV_LINKS = [
-  { href: "/twister-spinner-rules", label: "How to Play" },
-  { href: "/twister-spinner-symbols-meanings", label: "Symbols Explained" },
-  { href: "/how-to-make-twister-spinner-at-home", label: "DIY Spinner" },
-  { href: "/strip-twister-spinner-rules", label: "Strip Twister (18+)" }
+  { href: "/twister-spinner-rules", label: "Spinner Rules - How to Play" },
+  { href: "/twister-spinner-symbols-meanings", label: "Symbols & Their Meanings" },
+  { href: "/how-to-make-twister-spinner-at-home", label: "Make DIY Spinner at Home" },
+  { href: "/strip-twister-spinner-rules", label: "Strip Twister & Rules" }
 ];
 
 const Navbar = () => {
