@@ -19,6 +19,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import HowToMakeTwisterSpinner from "./pages/HowToMakeTwisterSpinner";
 import TwisterSpinnerSymbolsMeanings from "./pages/TwisterSpinnerSymbolsMeanings";
+import TwisterSpinnerRules from "./pages/TwisterSpinnerRules";
 // ── Language imports ─────────────────────────────────────────────────────────
 import enLang from "./lang/en.json";
 import arLang from "./lang/ar.json";
@@ -1462,6 +1463,7 @@ function Router() {
       {/* 👇 Your brand new page 👇 */}
       <Route path="/how-to-make-twister-spinner-at-home" component={HowToMakeTwisterSpinner} />
       <Route path="/twister-spinner-symbols-meanings" component={TwisterSpinnerSymbolsMeanings} />
+      <Route path="/twister-spinner-rules" component={TwisterSpinnerRules} />
 
       {/* English default root */}
       <Route path="/">{() => <Home routeLang="en" />}</Route>
