@@ -1190,7 +1190,7 @@ function Home({ routeLang }: { routeLang: string }) {
               disabled={spinDisabled}
               data-testid="button-spin"
               aria-label="Spin the Twister wheel"
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 w-[92px] h-[92px] rounded-full bg-card shadow-xl border-[3px] border-white/80 dark:border-white/20 flex items-center justify-center text-primary font-black text-base transition-all duration-150 hover:scale-105 active:scale-95 hover:shadow-2xl disabled:opacity-80 disabled:scale-100 disabled:cursor-default cursor-pointer select-none"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 w-[92px] h-[92px] rounded-full bg-card shadow-xl border-[3px] border-white/80 dark:border-white/20 flex items-center justify-center text-primary dark:text-white font-black text-base transition-all duration-150 hover:scale-105 active:scale-95 hover:shadow-2xl disabled:opacity-80 disabled:scale-100 disabled:cursor-default cursor-pointer select-none"
             >
               {isSpinning ? <Loader2 className="w-7 h-7 animate-spin" /> : t("spin")}
             </button>
