@@ -1036,6 +1036,13 @@ function Home({ routeLang }: { routeLang: string }) {
   const spin = () => {
     if (isSpinning || awaitingNextTurn) return;
     audioSynth.init();
+    
+    // 👇 NEW: Unlock the mobile voice engine with a silent whisper
+    if (voiceOn && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel(); // Clear any stuck voices
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance("")); // The unlock
+    }
+
     flushSync(() => {
       setIsSpinning(true);
       setResult(null);
