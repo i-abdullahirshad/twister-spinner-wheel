@@ -1443,11 +1443,18 @@ function Router() {
 
   useEffect(() => {
     // 1. DYNAMIC CANONICAL LOGIC
-    const canonicalElement = document.getElementById('canonical-link');
-    if (canonicalElement) {
-      const path = location === "/" ? "" : location;
-      canonicalElement.setAttribute('href', `https://twister-spinner.com${path}`);
+    let canonicalElement = document.querySelector('link[rel="canonical"]');
+    
+    // If the tag doesn't exist, create it from scratch and append to head
+    if (!canonicalElement) {
+      canonicalElement = document.createElement('link');
+      canonicalElement.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalElement);
     }
+    
+    // Set the correct dynamic URL
+    const path = location === "/" ? "" : location;
+    canonicalElement.setAttribute('href', `https://twister-spinner.com${path}`);
 
     // 2. DYNAMIC ROBOTS LOGIC (Index/NoFollow for Utility Pages)
     const utilityPages = ["/about", "/privacy", "/terms-conditions", "/contact"];
