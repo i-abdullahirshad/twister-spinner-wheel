@@ -2,14 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Moon, Sun, ChevronLeft, Menu, X } from 'lucide-react';
 
-const LANGUAGES: Record<string, string> = {
-  en: "English", ar: "العربية", ur: "اردو", es: "Español", fr: "Français",
-  de: "Deutsch", pt: "Português", ru: "Русский", hi: "हिन्दी", bn: "বাংলা",
-  tr: "Türkçe", id: "Indonesia", ms: "Melayu", it: "Italiano", nl: "Nederlands",
-  pl: "Polski", sv: "Svenska", vi: "Tiếng Việt", ja: "日本語", ko: "한국어",
-  "zh-cn": "简体中文", "zh-tw": "繁體中文",
-};
-
 // Organize your links here so they are easy to edit later
 const NAV_LINKS = [
   { href: "/twister-spinner-rules", label: "Spinner Rules - How to Play" },
@@ -19,9 +11,8 @@ const NAV_LINKS = [
 ];
 
 const Navbar = () => {
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
-  const [lang, setLang] = useState(() => localStorage.getItem("twisterLang") || "en");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Added your new URLs here so they get the "Back" button!
@@ -40,13 +31,6 @@ const Navbar = () => {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
-
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLang = e.target.value;
-    setLang(newLang);
-    localStorage.setItem("twisterLang", newLang);
-    setLocation(newLang === "en" ? "/" : `/${newLang}`);
-  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#FFF5F5] dark:bg-slate-950 border-b border-[#FED7D7] dark:border-slate-800 transition-colors duration-300 shadow-sm">
@@ -82,20 +66,8 @@ const Navbar = () => {
           </div>
         </div>
         
-        {/* RIGHT SIDE: Lang, Theme, Back Button */}
+        {/* RIGHT SIDE: Theme, Back Button */}
         <div className="flex items-center gap-2 md:gap-4 shrink-0">
-          {!isInnerPage && (
-            <select
-              value={lang}
-              onChange={handleLanguageChange}
-              className="text-xs bg-white dark:bg-slate-900 border border-[#FED7D7] dark:border-slate-800 rounded-lg px-2 py-1.5 text-foreground max-w-[108px] focus:outline-none focus:ring-2 focus:ring-red-500/50 cursor-pointer"
-            >
-              {Object.entries(LANGUAGES).map(([code, label]) => (
-                <option key={code} value={code}>{label}</option>
-              ))}
-            </select>
-          )}
-
           <button
             onClick={() => setTheme(th => th === "light" ? "dark" : "light")}
             className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-100 dark:hover:bg-slate-800 text-[#C53030] dark:text-red-400 transition-colors shrink-0"
