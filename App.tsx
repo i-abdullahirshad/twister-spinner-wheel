@@ -13,62 +13,17 @@ import { toast } from "@/hooks/use-toast";
 import NotFound from "@/pages/not-found";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ContactUs from "./pages/ContactUs";
-import TermsConditions from "./pages/TermsConditions"; // New
-import About from "./pages/About";                  // New
+import TermsConditions from "./pages/TermsConditions"; 
+import About from "./pages/About";                  
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import HowToMakeTwisterSpinner from "./pages/HowToMakeTwisterSpinner";
 import TwisterSpinnerSymbolsMeanings from "./pages/TwisterSpinnerSymbolsMeanings";
 import TwisterSpinnerRules from "./pages/TwisterSpinnerRules";
 import StripTwisterSpinnerRules from "./pages/StripTwisterSpinnerRules";
-// ── Language imports ─────────────────────────────────────────────────────────
-import enLang from "./lang/en.json";
-import arLang from "./lang/ar.json";
-import urLang from "./lang/ur.json";
-import esLang from "./lang/es.json";
-import frLang from "./lang/fr.json";
-import deLang from "./lang/de.json";
-import ptLang from "./lang/pt.json";
-import ruLang from "./lang/ru.json";
-import hiLang from "./lang/hi.json";
-import bnLang from "./lang/bn.json";
-import trLang from "./lang/tr.json";
-import idLang from "./lang/id.json";
-import msLang from "./lang/ms.json";
-import itLang from "./lang/it.json";
-import nlLang from "./lang/nl.json";
-import plLang from "./lang/pl.json";
-import svLang from "./lang/sv.json";
-import viLang from "./lang/vi.json";
-import jaLang from "./lang/ja.json";
-import koLang from "./lang/ko.json";
-import zhCnLang from "./lang/zh-cn.json";
-import zhTwLang from "./lang/zh-tw.json";
 
-const LANGUAGES: Record<string, { label: string; translations: Record<string, string>; rtl?: boolean }> = {
-  en:      { label: "English",    translations: enLang as Record<string, string> },
-  ar:      { label: "العربية",    translations: arLang as Record<string, string>, rtl: true },
-  ur:      { label: "اردو",       translations: urLang as Record<string, string>, rtl: true },
-  es:      { label: "Español",    translations: esLang as Record<string, string> },
-  fr:      { label: "Français",   translations: frLang as Record<string, string> },
-  de:      { label: "Deutsch",    translations: deLang as Record<string, string> },
-  pt:      { label: "Português",  translations: ptLang as Record<string, string> },
-  ru:      { label: "Русский",    translations: ruLang as Record<string, string> },
-  hi:      { label: "हिन्दी",      translations: hiLang as Record<string, string> },
-  bn:      { label: "বাংলা",      translations: bnLang as Record<string, string> },
-  tr:      { label: "Türkçe",     translations: trLang as Record<string, string> },
-  id:      { label: "Indonesia",  translations: idLang as Record<string, string> },
-  ms:      { label: "Melayu",     translations: msLang as Record<string, string> },
-  it:      { label: "Italiano",   translations: itLang as Record<string, string> },
-  nl:      { label: "Nederlands", translations: nlLang as Record<string, string> },
-  pl:      { label: "Polski",     translations: plLang as Record<string, string> },
-  sv:      { label: "Svenska",    translations: svLang as Record<string, string> },
-  vi:      { label: "Tiếng Việt", translations: viLang as Record<string, string> },
-  ja:      { label: "日本語",      translations: jaLang as Record<string, string> },
-  ko:      { label: "한국어",      translations: koLang as Record<string, string> },
-  "zh-cn": { label: "简体中文",    translations: zhCnLang as Record<string, string> },
-  "zh-tw": { label: "繁體中文",    translations: zhTwLang as Record<string, string> },
-};
+// ── Only English Import ──────────────────────────────────────────────────────
+import enLang from "./lang/en.json";
 
 // ── Segment data ─────────────────────────────────────────────────────────────
 const BASE_SEGMENTS = [
@@ -824,8 +779,7 @@ function WinnerOverlay({ winner, round, onPlayAgain }: { winner: Player; round: 
 // ════════════════════════════════════════════════════════════════════════════
 // HOME
 // ════════════════════════════════════════════════════════════════════════════
-function Home({ routeLang }: { routeLang: string }) {
-  const [, setLocation] = useLocation(); // <-- Added useLocation
+function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [isSpinning, setIsSpinning]   = useState(false);
@@ -838,9 +792,6 @@ function Home({ routeLang }: { routeLang: string }) {
   const [voiceOn, setVoiceOn]         = useState(true);
   const [speedMode, setSpeedMode]     = useState<SpeedMode>("normal");
   const [theme, setTheme]             = useState(() => localStorage.getItem("theme") || "light");
-  
-  // 👇 WE CHANGED THIS LINE 👇
-  const lang = routeLang; 
 
   const [shareCardDataUrl, setShareCardDataUrl] = useState<string | null>(null);
   const [showShare, setShowShare]               = useState(false);
@@ -857,37 +808,20 @@ function Home({ routeLang }: { routeLang: string }) {
   const animationRef       = useRef<number>(0);
   const lastTickAngleRef   = useRef(0);
 
-  // 👇 AND ADDED THIS EFFECT 👇
-  useEffect(() => {
-    const saved = localStorage.getItem("twisterLang");
-    if (routeLang === "en" && saved && saved !== "en" && LANGUAGES[saved]) {
-      setLocation(`/${saved}`, { replace: true });
-    }
-  }, [routeLang, setLocation]);
-
+  // Simplified strictly to use enLang
   const t = useCallback((key: string): string => {
-    const d = LANGUAGES[lang]?.translations;
-    return d?.[key] ?? (enLang as Record<string, string>)[key] ?? key;
-  }, [lang]);
-
-  const isRTL = LANGUAGES[lang]?.rtl ?? false;
+    return (enLang as Record<string, string>)[key] ?? key;
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
     localStorage.setItem("theme", theme);
   }, [theme]);
 
+  // Handle SEO dynamically without translation loops
   useEffect(() => {
-    document.documentElement.setAttribute("dir", isRTL ? "rtl" : "ltr");
-    localStorage.setItem("twisterLang", lang);
-  }, [lang, isRTL]);
-
-  // 👇 ADD YOUR NEW DYNAMIC SEO EFFECT HERE 👇
-  useEffect(() => {
-    // 1. Changes the hover tab text (SEO Title) dynamically
     document.title = t("seo_h1"); 
 
-    // 2. Changes the hidden SEO description dynamically
     let metaDescription = document.querySelector('meta[name="description"]');
     if (!metaDescription) {
       metaDescription = document.createElement('meta');
@@ -896,7 +830,6 @@ function Home({ routeLang }: { routeLang: string }) {
     }
     metaDescription.setAttribute('content', t("seo_intro_p1")); 
   }, [t]);
-  // 👆 ===================================== 👆
 
   useEffect(() => { audioSynth.muted = muted; }, [muted]);
 
@@ -1037,10 +970,10 @@ function Home({ routeLang }: { routeLang: string }) {
     if (isSpinning || awaitingNextTurn) return;
     audioSynth.init();
     
-    // 👇 NEW: Unlock the mobile voice engine with a silent whisper
+    // Unlock the mobile voice engine with a silent whisper
     if (voiceOn && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel(); // Clear any stuck voices
-      window.speechSynthesis.speak(new SpeechSynthesisUtterance("")); // The unlock
+      window.speechSynthesis.cancel(); 
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance("")); 
     }
 
     flushSync(() => {
@@ -1054,9 +987,6 @@ function Home({ routeLang }: { routeLang: string }) {
     const segAngle = (2 * Math.PI) / 16;
     const { duration, spins } = SPEED_CONFIG[speedMode];
 
-    // Normalise current rotation to [0, 2π) then add full spins + a random extra angle.
-    // The winner is determined AFTER the wheel stops from the actual final position,
-    // so there is no pre-selected target segment and no angle-offset mismatch.
     const startRot = ((rotationRef.current % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
     rotationRef.current = startRot;
     const targetRot = startRot + spins * 2 * Math.PI + Math.random() * 2 * Math.PI;
@@ -1081,11 +1011,6 @@ function Home({ routeLang }: { routeLang: string }) {
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
       } else {
-        // Determine the winning segment from the actual final wheel position.
-        // The pointer sits at 270° in canvas space (12 o'clock; 0° = 3 o'clock, CW positive).
-        // Segment i occupies [i·segAngle, (i+1)·segAngle] in the wheel's local frame.
-        // After rotating by normalizedDeg the segment whose LOCAL centre is closest to
-        // (270° − normalizedDeg) is the visual winner.
         const finalDeg = rotationRef.current * (180 / Math.PI);
         const normalizedDeg = ((finalDeg % 360) + 360) % 360;
         const segmentAngle = 360 / 16;
@@ -1147,7 +1072,6 @@ function Home({ routeLang }: { routeLang: string }) {
   return (
     <div
       className="min-h-[100dvh] w-full flex flex-col bg-background text-foreground selection:bg-primary/30"
-      dir={isRTL ? "rtl" : "ltr"}
     >
       {/* Winner overlay */}
       {gamePhase === "winner" && winner && (
@@ -1475,7 +1399,6 @@ function Router() {
       robotsMeta.setAttribute('content', 'index, follow');
     }
   }, [location]);
-  // ──────────────────────────────────────────────────────────────────────────
   
   return (
     <Switch>
@@ -1485,25 +1408,14 @@ function Router() {
       <Route path="/terms-conditions" component={TermsConditions} />
       <Route path="/contact" component={ContactUs} />
 
-      {/* 👇 Your brand new page 👇 */}
+      {/* Utilities */}
       <Route path="/how-to-make-twister-spinner-at-home" component={HowToMakeTwisterSpinner} />
       <Route path="/twister-spinner-symbols-meanings" component={TwisterSpinnerSymbolsMeanings} />
       <Route path="/twister-spinner-rules" component={TwisterSpinnerRules} />
       <Route path="/strip-twister-spinner-rules" component={StripTwisterSpinnerRules} />
 
       {/* English default root */}
-      <Route path="/">{() => <Home routeLang="en" />}</Route>
-      
-      {/* Catch-all language codes */}
-      <Route path="/:lang">
-        {(params) => {
-          const langCode = params.lang?.toLowerCase();
-          if (langCode && LANGUAGES[langCode]) {
-            return <Home routeLang={langCode} />;
-          }
-          return <NotFound />;
-        }}
-      </Route>
+      <Route path="/" component={Home} />
       
       <Route component={NotFound} />
     </Switch>
