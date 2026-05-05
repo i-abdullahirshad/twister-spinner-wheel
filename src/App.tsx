@@ -23,27 +23,6 @@ import TwisterSpinnerRules from "./pages/TwisterSpinnerRules";
 import StripTwisterSpinnerRules from "./pages/StripTwisterSpinnerRules";
 // ── Language imports ─────────────────────────────────────────────────────────
 import enLang from "./lang/en.json";
-import arLang from "./lang/ar.json";
-import urLang from "./lang/ur.json";
-import esLang from "./lang/es.json";
-import frLang from "./lang/fr.json";
-import deLang from "./lang/de.json";
-import ptLang from "./lang/pt.json";
-import ruLang from "./lang/ru.json";
-import hiLang from "./lang/hi.json";
-import bnLang from "./lang/bn.json";
-import trLang from "./lang/tr.json";
-import idLang from "./lang/id.json";
-import msLang from "./lang/ms.json";
-import itLang from "./lang/it.json";
-import nlLang from "./lang/nl.json";
-import plLang from "./lang/pl.json";
-import svLang from "./lang/sv.json";
-import viLang from "./lang/vi.json";
-import jaLang from "./lang/ja.json";
-import koLang from "./lang/ko.json";
-import zhCnLang from "./lang/zh-cn.json";
-import zhTwLang from "./lang/zh-tw.json";
 
 const LANGUAGES: Record<string, { label: string; translations: Record<string, string>; rtl?: boolean }> = {
   en:      { label: "English",    translations: enLang as Record<string, string> },
