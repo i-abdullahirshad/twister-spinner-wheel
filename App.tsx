@@ -1376,9 +1376,8 @@ function Router() {
       document.head.appendChild(canonicalElement);
     }
     
-    // Set the correct dynamic URL
-    const path = location === "/" ? "" : location;
-    canonicalElement.setAttribute('href', `https://twister-spinner.com${path}`);
+    // Set the correct dynamic URL (Directly using location for perfect trailing slash logic)
+    canonicalElement.setAttribute('href', `https://twister-spinner.com${location}`);
 
     // 2. DYNAMIC ROBOTS LOGIC (Index/NoFollow for Utility Pages)
     const utilityPages = ["/about", "/privacy", "/terms-conditions", "/contact"];
